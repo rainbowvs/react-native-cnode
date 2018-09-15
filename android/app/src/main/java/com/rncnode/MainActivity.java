@@ -1,6 +1,8 @@
 package com.rncnode;
 
+import android.os.Bundle; // 启动屏相关
 import com.facebook.react.ReactActivity;
+import org.devio.rn.splashscreen.SplashScreen; // 启动屏相关
 
 public class MainActivity extends ReactActivity {
 
@@ -11,5 +13,14 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "rnCnode";
+    }
+
+    /**
+     * 显示启动屏
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.show(this); // 关键
+        super.onCreate(savedInstanceState);
     }
 }
