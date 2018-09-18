@@ -1,4 +1,5 @@
 import { AppRegistry } from 'react-native';
-import App from './App';
+import { StackNav } from './src/coms/Navigation';
+// import App from './App';
 
-AppRegistry.registerComponent('rnCnode', () => App);
+AppRegistry.registerComponent('rnCnode', () => StackNav);
