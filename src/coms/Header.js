@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: Platform.OS === 'ios' ? NAV_BAR_HEIGHT_IOS : NAV_BAR_HEIGHT_ANDROID,
+    height: Platform.OS === 'ios' ? NAV_BAR_HEIGHT_IOS : NAV_BAR_HEIGHT_ANDROID
   },
   navBarTitleContainer: {
     alignItems: 'center',
@@ -51,6 +51,7 @@ const StatusBarShape = {
 
 export default class Header extends React.Component {
   static defaultProps = {
+    themeColor: '#80bd01',
     statusBar: {
       barStyle: 'light-content',
       hidden: false,
@@ -69,6 +70,7 @@ export default class Header extends React.Component {
 
   render() {
     const {
+      themeColor,
       statusBar,
       leftButton,
       rightButton,
@@ -77,11 +79,11 @@ export default class Header extends React.Component {
     } = this.props;
     const titleElem = titleView !== undefined
       ? titleView
-      : <Text ellipsizeMode="head" numberOfLines={1} style={styles.title}>{title}</Text>;
+      : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.title}>{title}</Text>;
     return (
-      <View style={styles.container}>
-        {<StatusBar {...statusBar} />}
-        <View style={styles.navBar}>
+      <View style={[styles.container, { backgroundColor: themeColor }]}>
+        <StatusBar {...statusBar} />
+        <View style={styles.navBar} backgroundColor={themeColor}>
           <View style={styles.navBarButton}>{leftButton}</View>
           <View style={styles.navBarTitleContainer}>{titleElem}</View>
           <View style={styles.navBarButton}>{rightButton}</View>
@@ -92,6 +94,7 @@ export default class Header extends React.Component {
 }
 
 Header.propTypes = {
+  themeColor: PropTypes.string,
   statusBar: PropTypes.shape(StatusBarShape),
   title: PropTypes.string,
   titleView: PropTypes.element,
