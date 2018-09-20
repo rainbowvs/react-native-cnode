@@ -1,27 +1,25 @@
 import React from 'react';
-import {
-  Easing,
-  Animated
-} from 'react-native';
-import {
-  createStackNavigator,
-  createDrawerNavigator
-} from 'react-navigation';
+import { Easing, Animated } from 'react-native';
+import { createStackNavigator, createDrawerNavigator } from 'react-navigation';
 import StackViewStyleInterpolator from 'react-navigation-stack/dist/views/StackView/StackViewStyleInterpolator';
 import App from '../../App';
+import Home from '../pages/Home';
 import Details from '../pages/Details';
 import Theme from '../pages/Theme';
 import Drawer from './Drawer';
 
 export const DrawerNav = createDrawerNavigator({
   Home: {
-    screen: App
+    screen: Home
   }
 }, {
   contentComponent: props => (<Drawer items={props} />)
 });
 
 export const StackNav = createStackNavigator({
+  App: {
+    screen: App
+  },
   Home: {
     screen: DrawerNav
   },
