@@ -8,6 +8,7 @@ import {
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
+import Base from './Base';
 import Iconfont from './IconFont';
 
 const styles = StyleSheet.create({
@@ -67,20 +68,24 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Drawer extends React.Component {
-  componentDidMount() {
-    return 1;
+export default class Drawer extends Base {
+  constructor(props) {
+    super(props);
+    const { items: { navigation } } = this.props;
+    this.state = {
+      themeColor: navigation.getParam('themeColor')
+    };
   }
 
-  renderItem = (navigation, navName, iconName, titleName) => {
+  renderItem = (navigation, themeColor, navName, iconName, titleName) => {
     return (
       <TouchableHighlight
         key={navName}
-        underlayColor="#ddd"
-        onPress={() => navigation.navigate(navName)}
+        underlayColor="#eee"
+        onPress={() => navigation.navigate(navName, { themeColor })}
       >
         <View style={styles.item}>
-          <Iconfont style={styles.itemIcon} name={iconName} />
+          <Iconfont style={[styles.itemIcon, { color: themeColor }]} name={iconName} />
           <Text style={styles.itemText}>{titleName}</Text>
         </View>
       </TouchableHighlight>
@@ -88,7 +93,8 @@ export default class Drawer extends React.Component {
   }
 
   render() {
-    const { items } = this.props;
+    const { items: { navigation } } = this.props;
+    const { themeColor } = this.state;
     const list = [
       { navName: 'Profile', iconName: 'user', titleName: '我的资料' },
       { navName: 'Theme', iconName: 'bg-colors', titleName: '主题颜色' },
@@ -97,7 +103,7 @@ export default class Drawer extends React.Component {
     return (
       <View style={styles.container}>
         <ScrollView>
-          <View style={styles.header}>
+          <View style={[styles.header, { backgroundColor: themeColor }]}>
             <Image style={styles.avatar} source={{ uri: 'https://static.hdslb.com/images/akari.jpg' }} />
             <Text style={styles.userName}>rainbowvs</Text>
             <View style={styles.credit}>
@@ -106,7 +112,11 @@ export default class Drawer extends React.Component {
             </View>
           </View>
           <View style={styles.list}>
-            { list.map(v => this.renderItem(items.navigation, v.navName, v.iconName, v.titleName)) }
+            {
+              list.map((v) => {
+                return this.renderItem(navigation, themeColor, v.navName, v.iconName, v.titleName);
+              })
+            }
           </View>
         </ScrollView>
       </View>
