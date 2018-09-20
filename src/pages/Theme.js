@@ -5,10 +5,12 @@ import {
   ScrollView,
   TouchableHighlight,
   Dimensions,
-  StyleSheet
+  StyleSheet,
+  DeviceEventEmitter
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
+import ThemeDao, { ThemeData } from '../../expand/dao/ThemeDao';
 import ViewUtils from '../coms/ViewUtils';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
@@ -38,46 +40,37 @@ const styles = StyleSheet.create({
   }
 });
 
-const ThemeData = {
-  Red: '#F44336',
-  Pink: '#E91E63',
-  Purple: '#9C27B0',
-  DeepPurple: '#673AB7',
-  Indigo: '#3F51B5',
-  Blue: '#2196F3',
-  LightBlue: '#03A9F4',
-  Cyan: '#00BCD4',
-  Teal: '#009688',
-  Green: '#4CAF50',
-  LightGreen: '#8BC34A',
-  Lime: '#CDDC39',
-  Amber: '#FFC107',
-  Orange: '#FF9800',
-  DeepOrange: '#FF5722',
-  Brown: '#795548',
-  Grey: '#9E9E9E',
-  BlueGrey: '#607D8B'
-};
-
 export default class Theme extends React.Component {
-  componentDidMount() {
-    return 1;
+  constructor(props) {
+    super(props);
+    this.themeDao = new ThemeDao();
+    const { navigation } = this.props;
+    this.state = {
+      themeColor: navigation.getParam('themeColor')
+    };
+  }
+
+  onSelectTheme(themeColor) {
+    this.themeDao.saveTheme(themeColor);
+    DeviceEventEmitter.emit('CHANGE_THEME', themeColor);
+    this.setState(() => ({
+      themeColor
+    }));
   }
 
   renderItem = () => {
     const elems = [];
     for (let i = 0, keys = Object.keys(ThemeData); i < keys.length; i += 1) {
+      const themeName = keys[i];
       elems.push(
         <TouchableHighlight
-          key={keys[i]}
+          key={themeName}
           underlayColor="white"
-          style={{ marginTop: 5 }}
-          onPress={() => {
-            //
-          }}
+          style={{ marginVertical: 5 }}
+          onPress={() => this.onSelectTheme(ThemeData[themeName])}
         >
-          <View style={[styles.item, { backgroundColor: ThemeData[keys[i]] }]}>
-            <Text style={styles.itemText}>{keys[i]}</Text>
+          <View style={[styles.item, { backgroundColor: ThemeData[themeName] }]}>
+            <Text style={styles.itemText}>{themeName}</Text>
           </View>
         </TouchableHighlight>
       );
@@ -87,11 +80,12 @@ export default class Theme extends React.Component {
 
   render() {
     const { navigation } = this.props;
+    const { themeColor } = this.state;
     return (
       <View style={styles.container}>
         <Header
           title="主题"
-          statusBar={{ backgroundColor: '#80bd01' }}
+          themeColor={themeColor}
           leftButton={ViewUtils.getIconButton('arrowleft', { marginLeft: 10 }, () => {
             navigation.goBack();
           })}
