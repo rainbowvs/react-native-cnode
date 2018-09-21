@@ -71,12 +71,16 @@ export default class Header extends React.Component {
   render() {
     const {
       themeColor,
-      statusBar,
       leftButton,
       rightButton,
       title,
       titleView
     } = this.props;
+    let { statusBar } = this.props;
+    statusBar = {
+      ...statusBar,
+      backgroundColor: themeColor
+    };
     const titleElem = titleView !== undefined
       ? titleView
       : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.title}>{title}</Text>;
