@@ -1,6 +1,8 @@
 import React from 'react';
 import {
+  View,
   TouchableOpacity,
+  ActivityIndicator,
   StyleSheet
 } from 'react-native';
 import IconFont from './IconFont';
@@ -23,6 +25,14 @@ export default class ViewUtils {
           style={[styles.icon, style]}
         />
       </TouchableOpacity>
+    );
+  }
+
+  static getLoading(flag, style, themeColor) {
+    return (
+      <View style={style}>
+        <ActivityIndicator color={themeColor} size="large" />
+      </View>
     );
   }
 }
