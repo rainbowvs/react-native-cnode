@@ -4,6 +4,7 @@ import {
   View,
   Image,
   FlatList,
+  RefreshControl,
   TouchableHighlight,
   StyleSheet,
   Dimensions
@@ -12,6 +13,7 @@ import PropTypes from 'prop-types';
 import DataRepository from '../../expand/dao/DataRepository';
 import { getTimeInterval, formatDateTime } from '../utils/dateUtils';
 import Base from './Base';
+import ViewUtils from './ViewUtils';
 
 const styles = StyleSheet.create({
   container: {
@@ -19,8 +21,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e1e1e1'
   },
   topic: {
-    backgroundColor: '#fff',
-    marginBottom: 10
+    backgroundColor: '#fff'
   },
   topicTop: {
     padding: 10,
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc'
   },
   topicHeader: {
-    height: 20,
+    height: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -89,27 +90,80 @@ export default class Tab extends Base {
   constructor(props) {
     super(props);
     const { themeColor, tabText } = this.props;
+    this.fetchParams = {
+      url: 'https://cnodejs.org/api/v1/topics',
+      page: 1,
+      limit: 8,
+      mdrender: false,
+      isLoading: false,
+      tabText
+    };
     this.state = {
       list: [],
-      tabText,
-      themeColor
+      themeColor,
+      isRefreshing: false
     };
     this.dataRepository = new DataRepository();
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    const { tabText } = this.state;
-    this.dataRepository.fetNetRepository(`https://cnodejs.org/api/v1/topics?tab=${tabText}&mdrender=false`).then((res) => {
+  fetchData() {
+    this.fetchParams.isLoading = true;
+    const {
+      url,
+      page,
+      tabText,
+      limit,
+      mdrender
+    } = this.fetchParams;
+    return this.dataRepository.fetNetRepository(url, {
+      tab: tabText,
+      page,
+      limit,
+      mdrender
+    });
+  }
+
+  freshData() {
+    if (this.fetchParams.isLoading || this.state.isRefreshing) {
+      return;
+    }
+    this.fetchParams.page = 1;
+    this.setState(() => ({
+      isRefreshing: true
+    }));
+    this.fetchData().then(res => {
       if (res.success) {
         this.setState(() => ({
-          list: res.data
+          list: res.data,
+          isRefreshing: false
         }));
+        this.fetchParams.page += 1;
+        this.fetchParams.isLoading = false;
       }
     });
   }
 
-  renderItem = (item) => {
+  async fetchMoreData() {
+    if (this.fetchParams.isLoading || this.state.isRefreshing) {
+      return;
+    }
+    const res = await this.fetchData();
+    if (res.success) {
+      this.setState(prevState => ({
+        list: prevState.list.concat(res.data)
+      }), () => {
+        this.fetchParams.page += 1;
+        this.fetchParams.isLoading = false;
+      });
+    }
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.freshData();
+  }
+
+  renderItem(item) {
     const { themeColor } = this.state;
     return (
       <View style={styles.topic}>
@@ -161,7 +215,7 @@ export default class Tab extends Base {
     );
   }
 
-  renderTag = (top, good, tab) => {
+  renderTag(top, good, tab) {
     const { themeColor } = this.state;
     let tabLabel = null;
     switch (tab) {
@@ -201,7 +255,17 @@ export default class Tab extends Base {
   }
 
   render() {
-    const { list } = this.state;
+    const {
+      list,
+      isRefreshing,
+      themeColor
+    } = this.state;
+    const { isLoading } = this.fetchParams;
+    const SeCom = () => {
+      return (
+        <View style={{ alignSelf: 'stretch', height: 10 }} />
+      );
+    };
     return (
       <View style={styles.container}>
         <FlatList
@@ -209,6 +273,18 @@ export default class Tab extends Base {
           extraData={this.state}
           keyExtractor={item => item.id}
           renderItem={({ item }) => this.renderItem(item)}
+          onEndReached={() => this.fetchMoreData()}
+          onEndReachedThreshold={0.1}
+          ItemSeparatorComponent={SeCom}
+          ListFooterComponent={ViewUtils.getLoading(isLoading, {}, themeColor)}
+          refreshControl={(
+            <RefreshControl
+              tintColor={themeColor}
+              colors={[themeColor]}
+              refreshing={isRefreshing}
+              onRefresh={() => this.freshData()}
+            />
+          )}
         />
       </View>
     );
