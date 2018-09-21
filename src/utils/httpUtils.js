@@ -1,7 +1,23 @@
+const encodeData = data => {
+  if (data) {
+    const arr = [];
+    for (const x in data) {
+      arr.push(`${encodeURIComponent(x)}=${encodeURIComponent(data[x])}`);
+    }
+    return `?${arr.join('&')}`;
+  }
+  return '';
+};
+
 export default class HttpUtils {
-  static get(url) {
+  static get(url, data) {
     return new Promise((resolve, reject) => {
-      fetch(url)
+      fetch(`${url}${encodeData(data)}`, {
+        method: 'GET',
+        header: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
         .then(response => response.json())
         .then(result => resolve(result))
         .catch(err => reject(err));
