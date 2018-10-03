@@ -30,9 +30,13 @@ export default class ViewUtils {
 
   static getLoading(flag, style, themeColor) {
     return (
-      <View style={style}>
-        <ActivityIndicator color={themeColor} size="large" />
-      </View>
+      flag
+        ? (
+          <View style={style}>
+            <ActivityIndicator color={themeColor} size="large" />
+          </View>
+        )
+        : null
     );
   }
 }
