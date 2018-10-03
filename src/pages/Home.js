@@ -55,12 +55,12 @@ export default class Home extends Base {
             />)
           }
         >
-          <Tab tabLabel="全部" tabText="all" themeColor={themeColor} />
-          <Tab tabLabel="精华" tabText="good" themeColor={themeColor} />
-          <Tab tabLabel="分享" tabText="share" themeColor={themeColor} />
-          <Tab tabLabel="问答" tabText="ask" themeColor={themeColor} />
-          <Tab tabLabel="招聘" tabText="job" themeColor={themeColor} />
-          <Tab tabLabel="测试" tabText="dev" themeColor={themeColor} />
+          <Tab tabLabel="全部" tabText="all" navigation={navigation} />
+          <Tab tabLabel="精华" tabText="good" navigation={navigation} />
+          <Tab tabLabel="分享" tabText="share" navigation={navigation} />
+          <Tab tabLabel="问答" tabText="ask" navigation={navigation} />
+          <Tab tabLabel="招聘" tabText="job" navigation={navigation} />
+          <Tab tabLabel="测试" tabText="dev" navigation={navigation} />
         </ScrollableTabView>
       </View>
     );
