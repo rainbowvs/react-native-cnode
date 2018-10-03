@@ -113,7 +113,7 @@ export default class Drawer extends Base {
           </View>
           <View style={styles.list}>
             {
-              list.map((v) => {
+              list.map(v => {
                 return this.renderItem(navigation, themeColor, v.navName, v.iconName, v.titleName);
               })
             }
