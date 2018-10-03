@@ -49,12 +49,12 @@ const styles = StyleSheet.create({
     color: '#fff'
   },
   topicInfo: {
-    width: Dimensions.get('window').width * 0.2916,
+    width: Dimensions.get('window').width * 0.3333,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
   topicContent: {
-    paddingTop: 5
+    height: 115
   },
   topicTitle: {
     fontSize: 18,
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   },
   topicBottom: {
     padding: 10,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -89,7 +90,8 @@ const styles = StyleSheet.create({
 export default class Tab extends Base {
   constructor(props) {
     super(props);
-    const { themeColor, tabText } = this.props;
+    const { tabText, navigation } = this.props;
+    const themeColor = navigation.getParam('themeColor');
     this.fetchParams = {
       url: 'https://cnodejs.org/api/v1/topics',
       page: 1,
@@ -99,8 +101,9 @@ export default class Tab extends Base {
       tabText
     };
     this.state = {
-      list: [],
       themeColor,
+      list: [],
+      isLoaded: false,
       isRefreshing: false
     };
     this.dataRepository = new DataRepository();
@@ -150,7 +153,8 @@ export default class Tab extends Base {
     const res = await this.fetchData();
     if (res.success) {
       this.setState(prevState => ({
-        list: prevState.list.concat(res.data)
+        list: prevState.list.concat(res.data),
+        isLoaded: true
       }), () => {
         this.fetchParams.page += 1;
         this.fetchParams.isLoading = false;
@@ -165,12 +169,13 @@ export default class Tab extends Base {
 
   renderItem(item) {
     const { themeColor } = this.state;
+    const { navigation } = this.props;
     return (
       <View style={styles.topic}>
         <TouchableHighlight
           underlayColor="#eee"
           onPress={() => {
-            //
+            navigation.navigate('Details', { themeColor, item });
           }}
         >
           <View style={styles.topicTop}>
@@ -195,7 +200,7 @@ export default class Tab extends Base {
         <TouchableHighlight
           underlayColor="#eee"
           onPress={() => {
-            //
+            // navigation.navigate('User');
           }}
         >
           <View style={styles.topicBottom}>
@@ -254,18 +259,34 @@ export default class Tab extends Base {
     );
   }
 
+  renderSeCom() {
+    return (
+      <View style={{ alignSelf: 'stretch', height: 10 }} />
+    );
+  }
+
+  renderFooter() {
+    const { themeColor, isLoaded } = this.state;
+    const { page } = this.fetchParams;
+    if (page !== 1) {
+      return (
+        ViewUtils.getLoading(true, {}, themeColor)
+      );
+    }
+    if (isLoaded) {
+      return (
+        ViewUtils.getLoading(true, {}, themeColor)
+      );
+    }
+    return null;
+  }
+
   render() {
     const {
       list,
       isRefreshing,
       themeColor
     } = this.state;
-    const { isLoading } = this.fetchParams;
-    const SeCom = () => {
-      return (
-        <View style={{ alignSelf: 'stretch', height: 10 }} />
-      );
-    };
     return (
       <View style={styles.container}>
         <FlatList
@@ -275,8 +296,13 @@ export default class Tab extends Base {
           renderItem={({ item }) => this.renderItem(item)}
           onEndReached={() => this.fetchMoreData()}
           onEndReachedThreshold={0.1}
-          ItemSeparatorComponent={SeCom}
-          ListFooterComponent={ViewUtils.getLoading(isLoading, {}, themeColor)}
+          ItemSeparatorComponent={this.renderSeCom}
+          ListFooterComponent={() => this.renderFooter()}
+          getItemLayout={(data, index) => ({
+            length: 216,
+            offset: 226 * index,
+            index
+          })}
           refreshControl={(
             <RefreshControl
               tintColor={themeColor}
@@ -292,6 +318,6 @@ export default class Tab extends Base {
 }
 
 Tab.propTypes = {
-  themeColor: PropTypes.string.isRequired,
+  navigation: PropTypes.object.isRequired,
   tabText: PropTypes.string.isRequired
 };
