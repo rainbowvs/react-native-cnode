@@ -22,7 +22,8 @@ module.exports = {
     "arrow-parens": ["error", "as-needed"], // 箭头函数参数格式
     "import/prefer-default-export": 0, // 默认导出
     "no-restricted-syntax": 0, //不允许指定（即用户定义）语法。
-    "guard-for-in": 0 // for in 遍历
+    "guard-for-in": 0, // for in 遍历
+    "class-methods-use-this": 0 // 静态方法
   },
   "globals": {
     "__DEV__": true,
