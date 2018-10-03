@@ -37,7 +37,7 @@ export const getTimeInterval = (startTime, endTime = new Date()) => {
  * @param {number} num 补零前的数字
  * @returns {string} 补零后的值
  */
-const addZero = (num) => {
+const addZero = num => {
   return num < 10 ? `0${num}` : `${num}`;
 };
 
@@ -46,7 +46,7 @@ const addZero = (num) => {
  * @param {string} dateStr 未经转换的日期字符串
  * @returns {string} Y-m-d H:m:s
  */
-export const formatDateTime = (dateStr) => {
+export const formatDateTime = dateStr => {
   const date = new Date(dateStr);
   const year = date.getFullYear();
   const month = addZero(date.getMonth() + 1);
