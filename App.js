@@ -7,7 +7,7 @@ import ThemeDao from './expand/dao/ThemeDao';
 export default class App extends React.Component {
   componentDidMount() {
     const { navigation } = this.props;
-    new ThemeDao().getTheme().then((res) => {
+    new ThemeDao().getTheme().then(res => {
       const resetAction = StackActions.reset({
         index: 0,
         actions: [
