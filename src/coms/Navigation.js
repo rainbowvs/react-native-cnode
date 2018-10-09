@@ -6,6 +6,9 @@ import App from '../../App';
 import Home from '../pages/Home';
 import Details from '../pages/Details';
 import Theme from '../pages/Theme';
+import User from '../pages/User';
+import Login from '../pages/Login';
+import Scan from '../pages/Scan';
 import Drawer from './Drawer';
 
 export const DrawerNav = createDrawerNavigator({
@@ -28,6 +31,15 @@ export const StackNav = createStackNavigator({
   },
   Theme: {
     screen: Theme
+  },
+  User: {
+    screen: User
+  },
+  Login: {
+    screen: Login
+  },
+  Scan: {
+    screen: Scan
   }
 }, {
   navigationOptions: {
