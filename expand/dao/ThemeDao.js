@@ -42,9 +42,9 @@ export default class ThemeDao {
     });
   }
 
-  saveTheme = (themeColor) => {
+  saveTheme = themeColor => {
     return new Promise((resolve, reject) => {
-      AsyncStorage.setItem(THEME_KEY, themeColor, (err) => {
+      AsyncStorage.setItem(THEME_KEY, themeColor, err => {
         if (err) {
           reject(err);
         } else {
