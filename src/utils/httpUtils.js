@@ -1,3 +1,29 @@
+const makeCancelable = promise => {
+  let hasCanceled = false;
+  const wrappedPromise = new Promise((resolve, reject) => {
+    promise.then(val => {
+      if (hasCanceled) {
+        reject({ isCanceled: true });
+      } else {
+        resolve(val);
+      }
+    });
+    promise.catch(error => {
+      if (hasCanceled) {
+        reject({ isCanceled: true });
+      } else {
+        resolve(error);
+      }
+    });
+  });
+  return {
+    promise: wrappedPromise,
+    cancel() {
+      hasCanceled = true;
+    }
+  };
+};
+
 const encodeData = data => {
   if (data) {
     const arr = [];
@@ -11,21 +37,18 @@ const encodeData = data => {
 
 export default class HttpUtils {
   static get(url, data) {
-    return new Promise((resolve, reject) => {
+    return makeCancelable(
       fetch(`${url}${encodeData(data)}`, {
         method: 'GET',
         header: {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       })
-        .then(response => response.json())
-        .then(result => resolve(result))
-        .catch(err => reject(err));
-    });
+    );
   }
 
   static post(url, data) {
-    return new Promise((resolve, reject) => {
+    return makeCancelable(
       fetch(url, {
         method: 'POST',
         header: {
@@ -34,9 +57,6 @@ export default class HttpUtils {
         },
         body: JSON.stringify(data)
       })
-        .then(response => response.json())
-        .then(result => resolve(result))
-        .catch(err => reject(err));
-    });
+    );
   }
 }
