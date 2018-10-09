@@ -44,7 +44,7 @@ export default class Theme extends React.Component {
   constructor(props) {
     super(props);
     this.themeDao = new ThemeDao();
-    const { navigation } = this.props;
+    const { navigation } = props;
     this.state = {
       themeColor: navigation.getParam('themeColor')
     };
