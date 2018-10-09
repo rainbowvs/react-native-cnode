@@ -19,10 +19,18 @@ const styles = StyleSheet.create({
 export default class Home extends Base {
   constructor(props) {
     super(props);
-    const { navigation } = this.props;
+    const { navigation } = props;
     this.state = {
       themeColor: navigation.getParam('themeColor')
     };
+    this.tabList = [
+      { label: '全部', text: 'all' },
+      { label: '精华', text: 'good' },
+      { label: '分享', text: 'share' },
+      { label: '问答', text: 'ask' },
+      { label: '招聘', text: 'job' },
+      { label: '测试', text: 'dev' }
+    ];
   }
 
   render() {
@@ -55,12 +63,19 @@ export default class Home extends Base {
             />)
           }
         >
-          <Tab tabLabel="全部" tabText="all" navigation={navigation} />
-          <Tab tabLabel="精华" tabText="good" navigation={navigation} />
-          <Tab tabLabel="分享" tabText="share" navigation={navigation} />
-          <Tab tabLabel="问答" tabText="ask" navigation={navigation} />
-          <Tab tabLabel="招聘" tabText="job" navigation={navigation} />
-          <Tab tabLabel="测试" tabText="dev" navigation={navigation} />
+          {
+            this.tabList.map(v => {
+              return (
+                <Tab
+                  key={v.text}
+                  tabLabel={v.label}
+                  tabText={v.text}
+                  navigation={navigation}
+                  themeColor={themeColor}
+                />
+              );
+            })
+          }
         </ScrollableTabView>
       </View>
     );
