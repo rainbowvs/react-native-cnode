@@ -5,6 +5,7 @@ import {
   Image,
   ScrollView,
   TouchableHighlight,
+  TouchableOpacity,
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -104,7 +105,11 @@ export default class Drawer extends Base {
       <View style={styles.container}>
         <ScrollView>
           <View style={[styles.header, { backgroundColor: themeColor }]}>
-            <Image style={styles.avatar} source={{ uri: 'https://static.hdslb.com/images/akari.jpg' }} />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login', { themeColor })}
+            >
+              <Image style={styles.avatar} source={{ uri: 'https://static.hdslb.com/images/akari.jpg' }} />
+            </TouchableOpacity>
             <Text style={styles.userName}>rainbowvs</Text>
             <View style={styles.credit}>
               <Iconfont style={styles.creditIcon} name="trophy" />
