@@ -10,10 +10,10 @@ import {
   Dimensions
 } from 'react-native';
 import PropTypes from 'prop-types';
-import DataRepository from '../../expand/dao/DataRepository';
 import { getTimeInterval, formatDateTime } from '../utils/dateUtils';
 import Base from './Base';
 import ViewUtils from './ViewUtils';
+import httpUtils from '../utils/httpUtils';
 
 const styles = StyleSheet.create({
   container: {
@@ -90,13 +90,12 @@ const styles = StyleSheet.create({
 export default class Tab extends Base {
   constructor(props) {
     super(props);
-    const { tabText, navigation } = this.props;
-    const themeColor = navigation.getParam('themeColor');
+    const { tabText, themeColor } = props;
     this.fetchParams = {
       url: 'https://cnodejs.org/api/v1/topics',
       page: 1,
       limit: 8,
-      mdrender: false,
+      mdrender: true,
       isLoading: false,
       tabText
     };
@@ -106,7 +105,7 @@ export default class Tab extends Base {
       isLoaded: false,
       isRefreshing: false
     };
-    this.dataRepository = new DataRepository();
+    this.cancelable = null;
   }
 
   fetchData() {
@@ -118,7 +117,7 @@ export default class Tab extends Base {
       limit,
       mdrender
     } = this.fetchParams;
-    return this.dataRepository.fetNetRepository(url, {
+    return httpUtils.get(url, {
       tab: tabText,
       page,
       limit,
@@ -134,37 +133,61 @@ export default class Tab extends Base {
     this.setState(() => ({
       isRefreshing: true
     }));
-    this.fetchData().then(res => {
-      if (res.success) {
+    this.cancelable = this.fetchData();
+    this.cancelable.promise
+      .then(response => response.json())
+      .then(res => {
+        if (res.success) {
+          this.setState(() => ({
+            list: res.data,
+            isRefreshing: false
+          }));
+          this.fetchParams.page += 1;
+          this.fetchParams.isLoading = false;
+        }
+      })
+      .catch(err => {
         this.setState(() => ({
-          list: res.data,
           isRefreshing: false
         }));
-        this.fetchParams.page += 1;
         this.fetchParams.isLoading = false;
-      }
-    });
+      });
   }
 
-  async fetchMoreData() {
+  fetchMoreData() {
     if (this.fetchParams.isLoading || this.state.isRefreshing) {
       return;
     }
-    const res = await this.fetchData();
-    if (res.success) {
-      this.setState(prevState => ({
-        list: prevState.list.concat(res.data),
-        isLoaded: true
-      }), () => {
-        this.fetchParams.page += 1;
+    this.cancelable = this.fetchData();
+    this.cancelable.promise
+      .then(response => response.json())
+      .then(res => {
+        if (res.success) {
+          this.setState(prevState => ({
+            list: prevState.list.concat(res.data),
+            isLoaded: true
+          }), () => {
+            this.fetchParams.page += 1;
+            this.fetchParams.isLoading = false;
+          });
+        }
+      })
+      .catch(err => {
+        this.setState(() => ({
+          isLoaded: false
+        }));
         this.fetchParams.isLoading = false;
       });
-    }
   }
 
   componentDidMount() {
     super.componentDidMount();
     this.freshData();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (this.cancelable) this.cancelable.cancel();
   }
 
   renderItem(item) {
@@ -175,7 +198,7 @@ export default class Tab extends Base {
         <TouchableHighlight
           underlayColor="#eee"
           onPress={() => {
-            navigation.navigate('Details', { themeColor, item });
+            navigation.navigate('Details', { themeColor, topic: item });
           }}
         >
           <View style={styles.topicTop}>
