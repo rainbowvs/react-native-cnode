@@ -44,9 +44,6 @@ export default class Home extends Base {
           leftButton={ViewUtils.getIconButton('menu', { marginLeft: 10 }, () => {
             navigation.openDrawer();
           })}
-          rightButton={ViewUtils.getIconButton('edit-square', { marginRight: 10 }, () => {
-            //
-          })}
         />
         <ScrollableTabView
           tabBarBackgroundColor={themeColor}
@@ -60,6 +57,7 @@ export default class Home extends Base {
             <ScrollableTabBar
               style={{ height: 44 }}
               tabStyle={{ height: 44 }}
+              textStyle={{ fontSize: 16 }}
             />)
           }
         >
