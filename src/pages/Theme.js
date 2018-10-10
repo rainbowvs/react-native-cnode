@@ -52,9 +52,7 @@ export default class Theme extends React.Component {
 
   onSelectTheme(newThemeColor) {
     const { themeColor } = this.state;
-    if (themeColor === newThemeColor) {
-      return;
-    }
+    if (themeColor === newThemeColor) return;
     this.themeDao.saveTheme(newThemeColor);
     DeviceEventEmitter.emit('CHANGE_THEME', newThemeColor);
     this.setState(() => ({
