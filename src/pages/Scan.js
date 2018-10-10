@@ -4,13 +4,16 @@ import {
   Text,
   Animated,
   Easing,
+  DeviceEventEmitter,
   StyleSheet
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
-import Base from '../coms/Base';
+import Toast from '../utils/toastUtils';
+import httpUtils from '../utils/httpUtils';
 import ViewUtils from '../coms/ViewUtils';
+import UserDao from '../../expand/dao/UserDao';
 
 const OPACITY = 0.8;
 
@@ -72,24 +75,67 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Scan extends Base {
+export default class Scan extends React.Component {
   constructor(props) {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
+    this.userDao = new UserDao();
     this.state = {
       themeColor,
       moveAnim: new Animated.Value(0)
     };
     this.token = null;
+    this.loading = false;
+    this.cancelable = null;
   }
 
   componentDidMount() {
-    super.componentDidMount();
     this.startAnimation();
   }
 
-  startAnimation = () => {
+  componentWillUnmount() {
+    if (this.cancelable) this.cancelable.cancel();
+  }
+
+  onBarCodeRead(responseData) {
+    if (this.loading) return;
+    const { navigation } = this.props;
+    const { type, data } = responseData;
+    if (type === 'QR_CODE') {
+      this.loading = true;
+      this.token = data;
+      this.cancelable = httpUtils.post('https://cnodejs.org/api/v1/accesstoken', {
+        accesstoken: this.token
+      });
+      this.cancelable.promise
+        .then(response => response.json())
+        .then(res => {
+          console.log(res);
+          this.loading = false;
+          if (res.success) {
+            Toast('登录成功');
+            DeviceEventEmitter.emit('CHANGE_LOGIN', res);
+            this.userDao.saveUser(res)
+              .then(saveResult => {
+                if (saveResult.success) navigation.navigate('Home');
+              })
+              .catch(saveError => {
+                Toast(saveError);
+              });
+          } else {
+            Toast(res.error_msg);
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+        });
+    } else {
+      Toast('扫描二维码不正确');
+    }
+  }
+
+  startAnimation() {
     const { moveAnim } = this.state;
     moveAnim.setValue(0);
     Animated.timing(moveAnim, {
@@ -97,19 +143,6 @@ export default class Scan extends Base {
       duration: 2200,
       easing: Easing.linear
     }).start(() => this.startAnimation());
-  };
-
-  onBarCodeRead(res) {
-    const { navigation } = this.props;
-    const { type, data } = res;
-    if (this.token !== data) {
-      if (type === 'QR_CODE') {
-        this.token = data;
-        navigation.navigate('Home');
-      } else {
-        // 扫描二维码不正确
-      }
-    }
   }
 
   render() {
