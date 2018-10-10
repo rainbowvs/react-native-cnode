@@ -1707,7 +1707,7 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "http://registry.npm.taobao.org/core-util-is/download/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
-create-react-class@^15.6.2, create-react-class@^15.6.3:
+create-react-class@^15.6.0, create-react-class@^15.6.2, create-react-class@^15.6.3:
   version "15.6.3"
   resolved "http://registry.npm.taobao.org/create-react-class/download/create-react-class-15.6.3.tgz#2d73237fb3f970ae6ebe011a9e66f46dbca80036"
   dependencies:
@@ -2831,6 +2831,12 @@ inquirer@^6.1.0:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
+invariant@2.2.0:
+  version "2.2.0"
+  resolved "http://registry.npm.taobao.org/invariant/download/invariant-2.2.0.tgz#c8d7e847366a49cc18b622f058a689d481e895f2"
+  dependencies:
+    loose-envify "^1.0.0"
+
 invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "http://registry.npm.taobao.org/invariant/download/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
@@ -3585,6 +3591,10 @@ jsx-ast-utils@^2.0.1:
   resolved "http://registry.npm.taobao.org/jsx-ast-utils/download/jsx-ast-utils-2.0.1.tgz#e801b1b39985e20fffc87b40e3748080e2dcac7f"
   dependencies:
     array-includes "^3.0.3"
+
+keymirror@0.1.1:
+  version "0.1.1"
+  resolved "http://registry.npm.taobao.org/keymirror/download/keymirror-0.1.1.tgz#918889ea13f8d0a42e7c557250eee713adc95c35"
 
 kind-of@^1.1.0:
   version "1.1.0"
@@ -4690,6 +4700,28 @@ react-native-vector-icons@^5.0.0:
     lodash "^4.0.0"
     prop-types "^15.5.10"
     yargs "^8.0.2"
+
+react-native-webview-bridge-updated@^1.0.0:
+  version "1.0.9"
+  resolved "http://registry.npm.taobao.org/react-native-webview-bridge-updated/download/react-native-webview-bridge-updated-1.0.9.tgz#930b4e6444f4a2b5f3151607c6eb6eba8deda08f"
+  dependencies:
+    invariant "2.2.0"
+    keymirror "0.1.1"
+
+react-native-webview-bridge@^0.40.0:
+  version "0.40.0"
+  resolved "http://registry.npm.taobao.org/react-native-webview-bridge/download/react-native-webview-bridge-0.40.0.tgz#6768631705a90e9aa15cd4655bca87b8424b2cec"
+  dependencies:
+    create-react-class "^15.6.0"
+    invariant "^2.2.2"
+    keymirror "0.1.1"
+    prop-types "^15.5.10"
+
+react-native-zss-rich-text-editor@^1.1.0:
+  version "1.1.0"
+  resolved "http://registry.npm.taobao.org/react-native-zss-rich-text-editor/download/react-native-zss-rich-text-editor-1.1.0.tgz#c197d797a8ca65e46e2ccbe36e73fa2624d07c1c"
+  dependencies:
+    react-native-webview-bridge-updated "^1.0.0"
 
 react-native@0.55.4:
   version "0.55.4"
