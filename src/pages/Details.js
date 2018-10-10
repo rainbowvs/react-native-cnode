@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
-import Base from '../coms/Base';
 import ViewUtils from '../coms/ViewUtils';
 import mdstyle from '../../statics/styles/md-style';
 import { getTimeInterval } from '../utils/dateUtils';
@@ -29,15 +28,13 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Details extends Base {
+export default class Details extends React.Component {
   constructor(props) {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
     this.state = {
       themeColor,
-      list: [],
-      isLoading: false,
       topic: navigation.getParam('topic')
     };
   }
