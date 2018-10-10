@@ -40,8 +40,8 @@ export default class HttpUtils {
     return makeCancelable(
       fetch(`${url}${encodeData(data)}`, {
         method: 'GET',
-        header: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         }
       })
     );
@@ -51,9 +51,8 @@ export default class HttpUtils {
     return makeCancelable(
       fetch(url, {
         method: 'POST',
-        header: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
         },
         body: JSON.stringify(data)
       })
