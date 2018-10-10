@@ -5,10 +5,9 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
-import Base from '../coms/Base';
 import ViewUtils from '../coms/ViewUtils';
 
-export default class User extends Base {
+export default class User extends React.Component {
   constructor(props) {
     super(props);
     const { navigation } = props;
