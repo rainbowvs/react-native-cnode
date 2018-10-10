@@ -1,17 +1,13 @@
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  TextInput,
-  TouchableHighlight,
-  TouchableNativeFeedback
+  TextInput
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Button from 'apsl-react-native-button';
 import Header from '../coms/Header';
-import Base from '../coms/Base';
 import ViewUtils from '../coms/ViewUtils';
+import XButton from '../coms/XButton';
 import Toast from '../utils/toastUtils';
 import httpUtils from '../utils/httpUtils';
 
@@ -47,7 +43,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Login extends Base {
+export default class Login extends React.Component {
   constructor(props) {
     super(props);
     const { navigation } = props;
@@ -60,8 +56,13 @@ export default class Login extends Base {
     this.cancelable = null;
   }
 
+  componentWillUnmount() {
+    if (this.cancelable) this.cancelable.cancel();
+  }
+
   submit() {
     const { token } = this.state;
+    const { navigation } = this.props;
     this.setState(() => ({
       loading: true
     }));
@@ -77,6 +78,7 @@ export default class Login extends Base {
         }));
         if (res.success) {
           Toast('登录成功');
+          navigation.goBack();
         } else {
           Toast(res.error_msg);
         }
@@ -110,24 +112,17 @@ export default class Login extends Base {
             selectionColor={themeColor}
             onChangeText={token => this.setState({ token })}
             underlineColorAndroid="transparent"
+            placeholderTextColor="#aaa"
           />
-          {/* <TouchableHighlight
-            underlayColor="#eee"
+          <XButton
             onPress={() => this.submit()}
-          >
-            <View style={[styles.button, { backgroundColor: themeColor }]}>
-              <Text style={styles.buttonText}>登录</Text>
-            </View>
-          </TouchableHighlight> */}
-          <Button
-            onPress={() => this.submit()}
-            isLoading={loading}
-            style={[styles.button, { backgroundColor: themeColor }]}
+            disabled={loading}
+            fbType="opacity"
+            activeOpacity={0.7}
+            buttonStyle={[styles.button, { backgroundColor: themeColor }]}
             textStyle={styles.buttonText}
-            activityIndicatorColor="#fff"
-          >
-            登录
-          </Button>
+            iconName="login"
+          />
         </View>
       </View>
     );
