@@ -9,6 +9,7 @@ import Theme from '../pages/Theme';
 import User from '../pages/User';
 import Login from '../pages/Login';
 import Scan from '../pages/Scan';
+import Publish from '../pages/Publish';
 import Drawer from './Drawer';
 
 export const DrawerNav = createDrawerNavigator({
@@ -16,7 +17,7 @@ export const DrawerNav = createDrawerNavigator({
     screen: Home
   }
 }, {
-  contentComponent: props => (<Drawer items={props} />)
+  contentComponent: props => (<Drawer navOpts={props} />)
 });
 
 export const StackNav = createStackNavigator({
@@ -40,6 +41,9 @@ export const StackNav = createStackNavigator({
   },
   Scan: {
     screen: Scan
+  },
+  Publish: {
+    screen: Publish
   }
 }, {
   navigationOptions: {
