@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import {
   Text,
   View,
   Image,
   ScrollView,
-  TouchableHighlight,
+  Alert,
   TouchableOpacity,
+  DeviceEventEmitter,
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Base from './Base';
-import Iconfont from './IconFont';
+import UserDao from '../../expand/dao/UserDao';
+import Toast from '../utils/toastUtils';
+import XButton from './XButton';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,13 +21,14 @@ const styles = StyleSheet.create({
   },
   header: {
     alignSelf: 'stretch',
-    height: 200,
+    height: 230,
     backgroundColor: '#80bd01',
     justifyContent: 'center',
     alignItems: 'center'
   },
   avatar: {
-    borderWidth: 3,
+    marginVertical: 20,
+    borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 60,
     width: 90,
@@ -32,7 +36,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: '#fff',
-    fontSize: 24
+    fontSize: 20
   },
   credit: {
     flexDirection: 'row',
@@ -42,11 +46,11 @@ const styles = StyleSheet.create({
   creditIcon: {
     marginRight: 5,
     color: '#fff',
-    fontSize: 22
+    fontSize: 16
   },
   creditCount: {
     color: '#fff',
-    fontSize: 18
+    fontSize: 16
   },
   list: {
     marginTop: 10
@@ -69,52 +73,126 @@ const styles = StyleSheet.create({
   }
 });
 
+const defaultUserInfo = {
+  id: null,
+  loginname: '点击头像登录',
+  avatar_url: 'https://static.hdslb.com/images/akari.jpg'
+};
+
 export default class Drawer extends Base {
   constructor(props) {
     super(props);
-    const { items: { navigation } } = this.props;
+    const { navOpts: { navigation } } = this.props;
+    this.userDao = new UserDao();
     this.state = {
-      themeColor: navigation.getParam('themeColor')
+      themeColor: navigation.getParam('themeColor'),
+      userInfo: defaultUserInfo
     };
+    this.loginListener = null;
   }
 
-  renderItem = (navigation, themeColor, navName, iconName, titleName) => {
+  componentDidMount() {
+    super.componentDidMount();
+    this.loginListener = DeviceEventEmitter.addListener('CHANGE_LOGIN', params => {
+      this.setState(() => ({
+        userInfo: params
+      }));
+    });
+    this.userDao.getUser()
+      .then(res => {
+        const userInfo = JSON.parse(res);
+        this.setState(() => ({
+          userInfo
+        }));
+      });
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (this.loginListener) this.loginListener.remove();
+  }
+
+  renderItem(navigation, themeColor, navName, iconName, titleName) {
+    const { userInfo } = this.state;
+    const callback = () => {
+      if (navName === 'Logout') {
+        Alert.alert(
+          '',
+          '确定要退出登录吗？',
+          [
+            { text: '取消', style: 'cancel' },
+            {
+              text: '确定',
+              onPress: () => {
+                this.userDao.removeUser()
+                  .then(res => {
+                    if (res.success) {
+                      this.setState(({
+                        userInfo: defaultUserInfo
+                      }));
+                      Toast('退出成功');
+                    }
+                  });
+              }
+            }
+          ]
+        );
+      } else {
+        navigation.navigate(navName, { themeColor });
+      }
+    };
+    if (!userInfo.id && navName === 'Logout') return null;
     return (
-      <TouchableHighlight
+      <XButton
         key={navName}
-        underlayColor="#eee"
-        onPress={() => navigation.navigate(navName, { themeColor })}
-      >
-        <View style={styles.item}>
-          <Iconfont style={[styles.itemIcon, { color: themeColor }]} name={iconName} />
-          <Text style={styles.itemText}>{titleName}</Text>
-        </View>
-      </TouchableHighlight>
+        onPress={callback}
+        buttonStyle={styles.item}
+        textStyle={styles.itemText}
+        iconStyle={[styles.itemIcon, { color: themeColor }]}
+        iconName={iconName}
+        text={titleName}
+      />
+    );
+  }
+
+  renderUser() {
+    const { navOpts: { navigation } } = this.props;
+    const { themeColor, userInfo } = this.state;
+    let navName = 'Login';
+    if (userInfo.id) {
+      navName = 'User';
+    }
+    return (
+      <Fragment>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={() => navigation.navigate(navName, { themeColor })}
+        >
+          <Image style={styles.avatar} source={{ uri: userInfo.avatar_url }} />
+        </TouchableOpacity>
+        <Text style={styles.userName}>{userInfo.loginname}</Text>
+      </Fragment>
     );
   }
 
   render() {
-    const { items: { navigation } } = this.props;
+    const { navOpts: { navigation } } = this.props;
     const { themeColor } = this.state;
     const list = [
-      { navName: 'Profile', iconName: 'user', titleName: '我的资料' },
+      { navName: 'Publish', iconName: 'edit-square', titleName: '发表主题' },
       { navName: 'Theme', iconName: 'bg-colors', titleName: '主题颜色' },
-      { navName: 'About', iconName: 'smile', titleName: '关于项目' }
+      { navName: 'About', iconName: 'smile', titleName: '关于项目' },
+      { navName: 'Logout', iconName: 'logout', titleName: '退出登录' }
     ];
     return (
       <View style={styles.container}>
         <ScrollView>
           <View style={[styles.header, { backgroundColor: themeColor }]}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Login', { themeColor })}
-            >
-              <Image style={styles.avatar} source={{ uri: 'https://static.hdslb.com/images/akari.jpg' }} />
-            </TouchableOpacity>
-            <Text style={styles.userName}>rainbowvs</Text>
-            <View style={styles.credit}>
+            {this.renderUser()}
+            {/* <View style={styles.credit}>
               <Iconfont style={styles.creditIcon} name="trophy" />
               <Text style={styles.creditCount}>40</Text>
-            </View>
+            </View> */}
           </View>
           <View style={styles.list}>
             {
@@ -130,5 +208,5 @@ export default class Drawer extends Base {
 }
 
 Drawer.propTypes = {
-  items: PropTypes.object.isRequired
+  navOpts: PropTypes.object.isRequired
 };
