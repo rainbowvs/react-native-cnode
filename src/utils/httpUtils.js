@@ -24,7 +24,7 @@ const makeCancelable = promise => {
   };
 };
 
-const encodeData = data => {
+export const encodeData = data => {
   if (data) {
     const arr = [];
     for (const x in data) {
