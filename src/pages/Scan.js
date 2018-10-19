@@ -114,9 +114,15 @@ export default class Scan extends React.Component {
           console.log(res);
           this.loading = false;
           if (res.success) {
+            const userInfo = {
+              accesstoken: this.token,
+              id: res.id,
+              loginname: res.loginname,
+              avatar_url: res.avatar_url
+            };
             Toast('登录成功');
-            DeviceEventEmitter.emit('CHANGE_LOGIN', res);
-            this.userDao.saveUser(res)
+            DeviceEventEmitter.emit('CHANGE_LOGIN', userInfo);
+            this.userDao.saveUser(userInfo)
               .then(saveResult => {
                 if (saveResult.success) navigation.navigate('Home');
               })
