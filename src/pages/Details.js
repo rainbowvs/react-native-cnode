@@ -7,24 +7,14 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
+import Toast from '../utils/toastUtils';
+import UserDao from '../../expand/dao/UserDao';
 import ViewUtils from '../coms/ViewUtils';
-import mdstyle from '../../statics/styles/md-style';
-import { getTimeInterval } from '../utils/dateUtils';
+import { encodeData } from '../utils/httpUtils';
 
 const styles = StyleSheet.create({
   content: {
-    padding: 15,
-    backgroundColor: 'white'
-  },
-  comment: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 10,
-    right: 10
+    padding: 15
   }
 });
 
@@ -33,101 +23,74 @@ export default class Details extends React.Component {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
+    this.userDao = new UserDao();
     this.state = {
       themeColor,
+      userInfo: {
+        id: null,
+        loginname: null,
+        avatar_url: null
+      },
       topic: navigation.getParam('topic')
     };
   }
 
+  componentDidMount() {
+    this.userDao.getUser()
+      .then(res => {
+        const userInfo = JSON.parse(res);
+        this.setState(() => ({
+          userInfo
+        }));
+      });
+  }
+
   onMessage(e) {
+    const { navigation } = this.props;
+    const { themeColor } = this.state;
     const { data } = e.nativeEvent;
-    const { method, params } = JSON.parse(data);
-    if (typeof this[method] === 'function') {
-      this[method](params);
+    const { type, msg, params } = JSON.parse(data);
+    console.log(type, msg, params);
+    if (type === 'message') {
+      Toast(msg);
+      return false;
     }
+    if (params) {
+      if (params.name) {
+        navigation.navigate('User', { themeColor, authorName: params.name });
+        return false;
+      }
+      if (params.url) {
+        this.openLink(params.url);
+        return false;
+      }
+    }
+    return false;
   }
 
   openLink(data) {
     Linking.canOpenURL(data).then(supported => {
       if (!supported) {
-        console.log('不支持打开该链接!');
+        Toast('不支持打开该链接!');
       } else {
         Linking.openURL(data).catch(() => {
-          console.error('链接打开失败,请稍后重试!');
+          Toast('链接打开失败, 请稍后重试!');
         });
       }
     });
   }
 
-  authorNav(data) {
-    const { navigation } = this.props;
-    const { themeColor } = this.state;
-    navigation.navigate('User', { themeColor, authorName: data });
-  }
-
-  renderHtml() {
-    const { topic } = this.state;
-    const meta = '<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />';
-    const title = `
-      <div class="webview-topic-title">
-        <h1>${topic.title}</h1>
-        <div id="webview-author" style="height: 50px;overflow: hidden;">
-          <div style="float: left;">
-            <img style="margin-right: 15px;width: 40px;border-radius: 50%;" src="${topic.author.avatar_url}" alt="${topic.author.loginname}" />
-          </div>
-          <div style="float: left;">
-            <p style="margin: 0;">${topic.author.loginname}</p>
-            <p style="margin: 0;color: #666;">创建于：${getTimeInterval(topic.create_at)} · ${topic.visit_count}次浏览</p>
-          </div>
-        </div>
-      </div>
-    `;
-    const scripts = `<script>
-      function addHttps() {
-        var img = document.getElementsByTagName('img');
-        for (var i = 0; i < img.length; i++) {
-          var src = img[i].getAttribute("src");
-          src = (/^https:|^http:/.test(src)) ? src : ("https:" + src);
-          img[i].setAttribute("src", src);
-        }
-      }
-      function postMsg(method, param) {
-        window.postMessage(JSON.stringify({params: param, method: method}));
-      }
-      function authorEvents() {
-        var authorEle = document.getElementById('webview-author');
-        authorEle.onclick = function() {
-          postMsg('authorNav', '${topic.author.loginname}');
-        }
-      }
-      function each(arr, callback) {
-        for (var i=0;i<arr.length;i++) {
-          callback(arr[i],i);
-        }
-      }
-      function openLink(node, link) {
-        var url = node.getAttribute(link);
-        node.onclick = function(event) {
-          event.preventDefault();
-          postMsg('openLink', url);
-        };
-      }
-      function linkEvents() {
-        var a = document.getElementsByTagName('a');
-        each(a, function(v) {
-          openLink(v, 'href');
-        });
-      }
-      addHttps();
-      authorEvents();
-      linkEvents();
-    </script>`;
-    return `${meta}${mdstyle}${title}${topic.content}${scripts}`;
-  }
-
   render() {
     const { navigation } = this.props;
-    const { themeColor } = this.state;
+    const { themeColor, topic, userInfo } = this.state;
+    const uri = `http://192.168.1.100:8082/rnwv/topic.html${encodeData({
+      themeColor,
+      topicId: topic.id,
+      accesstoken: userInfo.accesstoken,
+      userName: userInfo.loginname
+    })}`;
+    console.log(uri);
+    console.log(userInfo);
     return (
       <View style={{ flex: 1 }}>
         <Header
@@ -139,17 +102,10 @@ export default class Details extends React.Component {
         />
         <View style={{ flex: 1 }}>
           <WebView
-            startInLoadingState
             onMessage={e => this.onMessage(e)}
-            renderLoading={() => ViewUtils.getLoading(true, { marginTop: 10 }, themeColor)}
             originWhitelist={['*']}
-            source={{ html: this.renderHtml(), baseUrl: '' }}
+            source={{ uri }}
           />
-        </View>
-        <View style={[styles.comment, { backgroundColor: themeColor }]}>
-          {ViewUtils.getIconButton('comment', {}, () => {
-            navigation.navigate('User', { themeColor });
-          })}
         </View>
       </View>
     );
