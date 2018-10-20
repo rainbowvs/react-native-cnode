@@ -28,7 +28,9 @@ export const encodeData = data => {
   if (data) {
     const arr = [];
     for (const x in data) {
-      arr.push(`${encodeURIComponent(x)}=${encodeURIComponent(data[x])}`);
+      if (data[x]) {
+        arr.push(`${encodeURIComponent(x)}=${encodeURIComponent(data[x])}`);
+      }
     }
     return `?${arr.join('&')}`;
   }
