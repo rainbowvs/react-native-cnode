@@ -2,7 +2,8 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  TextInput
+  TextInput,
+  DeviceEventEmitter
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
@@ -10,6 +11,7 @@ import ViewUtils from '../coms/ViewUtils';
 import XButton from '../coms/XButton';
 import Toast from '../utils/toastUtils';
 import httpUtils from '../utils/httpUtils';
+import UserDao from '../../expand/dao/UserDao';
 
 const styles = StyleSheet.create({
   container: {
@@ -48,9 +50,10 @@ export default class Login extends React.Component {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
+    this.userDao = new UserDao();
     this.state = {
       themeColor,
-      token: '',
+      token: 'aa1fdffa-c4d1-408b-b54a-27403f9b3a55',
       loading: false
     };
     this.cancelable = null;
@@ -63,6 +66,10 @@ export default class Login extends React.Component {
   submit() {
     const { token } = this.state;
     const { navigation } = this.props;
+    // if (token === '') {
+    //   Toast('accesstoken不能为空');
+    //   return;
+    // }
     this.setState(() => ({
       loading: true
     }));
@@ -72,18 +79,31 @@ export default class Login extends React.Component {
     this.cancelable.promise
       .then(response => response.json())
       .then(res => {
-        console.log(res);
         this.setState(() => ({
           loading: false
         }));
         if (res.success) {
+          const userInfo = {
+            accesstoken: token,
+            id: res.id,
+            loginname: res.loginname,
+            avatar_url: res.avatar_url
+          };
           Toast('登录成功');
-          navigation.goBack();
+          DeviceEventEmitter.emit('CHANGE_LOGIN', userInfo);
+          this.userDao.saveUser(userInfo)
+            .then(saveResult => {
+              if (saveResult.success) navigation.goBack();
+            })
+            .catch(saveError => {
+              Toast(saveError);
+            });
         } else {
           Toast(res.error_msg);
         }
       })
       .catch(err => {
+        Toast(err);
         this.setState(() => ({
           loading: false
         }));
