@@ -76,17 +76,19 @@ const styles = StyleSheet.create({
 const defaultUserInfo = {
   id: null,
   loginname: '点击头像登录',
-  avatar_url: 'https://static.hdslb.com/images/akari.jpg'
+  avatar_url: 'https://static.hdslb.com/images/akari.jpg',
+  accesstoken: null
 };
 
 export default class Drawer extends Base {
   constructor(props) {
     super(props);
     const { navOpts: { navigation } } = this.props;
+    const userInfo = (navigation.getParam('userInfo') && JSON.parse(navigation.getParam('userInfo'))) || defaultUserInfo;
     this.userDao = new UserDao();
     this.state = {
       themeColor: navigation.getParam('themeColor'),
-      userInfo: defaultUserInfo
+      userInfo
     };
     this.loginListener = null;
   }
@@ -98,13 +100,6 @@ export default class Drawer extends Base {
         userInfo: params
       }));
     });
-    this.userDao.getUser()
-      .then(res => {
-        const userInfo = JSON.parse(res);
-        this.setState(() => ({
-          userInfo
-        }));
-      });
   }
 
   componentWillUnmount() {
@@ -112,7 +107,8 @@ export default class Drawer extends Base {
     if (this.loginListener) this.loginListener.remove();
   }
 
-  renderItem(navigation, themeColor, navName, iconName, titleName) {
+  renderItem(themeColor, navName, iconName, titleName) {
+    const { navOpts: { navigation } } = this.props;
     const { userInfo } = this.state;
     const callback = () => {
       if (navName === 'Logout') {
@@ -137,11 +133,29 @@ export default class Drawer extends Base {
             }
           ]
         );
+      } else if (navName === 'Publish') {
+        if (!userInfo.accesstoken) {
+          Alert.alert(
+            '',
+            '发表主题需要登录账户',
+            [
+              { text: '取消', style: 'cancel' },
+              {
+                text: '马上登录',
+                onPress: () => {
+                  navigation.navigate('Login', { themeColor });
+                }
+              }
+            ]
+          );
+        } else {
+          navigation.navigate(navName, { themeColor, userInfo });
+        }
       } else {
         navigation.navigate(navName, { themeColor });
       }
     };
-    if (!userInfo.id && navName === 'Logout') return null;
+    if (!userInfo.accesstoken && navName === 'Logout') return null;
     return (
       <XButton
         key={navName}
@@ -159,7 +173,7 @@ export default class Drawer extends Base {
     const { navOpts: { navigation } } = this.props;
     const { themeColor, userInfo } = this.state;
     let navName = 'Login';
-    if (userInfo.id) {
+    if (userInfo.accesstoken) {
       navName = 'User';
     }
     return (
@@ -176,7 +190,6 @@ export default class Drawer extends Base {
   }
 
   render() {
-    const { navOpts: { navigation } } = this.props;
     const { themeColor } = this.state;
     const list = [
       { navName: 'Publish', iconName: 'edit-square', titleName: '发表主题' },
@@ -197,7 +210,7 @@ export default class Drawer extends Base {
           <View style={styles.list}>
             {
               list.map(v => {
-                return this.renderItem(navigation, themeColor, v.navName, v.iconName, v.titleName);
+                return this.renderItem(themeColor, v.navName, v.iconName, v.titleName);
               })
             }
           </View>
