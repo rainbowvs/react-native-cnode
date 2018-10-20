@@ -25,13 +25,12 @@ export const ThemeData = {
 };
 
 export default class ThemeDao {
-  getTheme = () => {
+  getTheme() {
     return new Promise((resolve, reject) => {
       AsyncStorage.getItem(THEME_KEY, (err, res) => {
         let themeColor = res;
         if (err) {
           reject(err);
-          return;
         }
         if (!res) {
           themeColor = ThemeData.Default;
@@ -42,7 +41,7 @@ export default class ThemeDao {
     });
   }
 
-  saveTheme = themeColor => {
+  saveTheme(themeColor) {
     return new Promise((resolve, reject) => {
       AsyncStorage.setItem(THEME_KEY, themeColor, err => {
         if (err) {
