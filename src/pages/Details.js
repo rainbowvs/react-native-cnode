@@ -13,8 +13,11 @@ import ViewUtils from '../coms/ViewUtils';
 import { encodeData } from '../utils/httpUtils';
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
   content: {
-    padding: 15
+    flex: 1
   }
 });
 
@@ -29,7 +32,8 @@ export default class Details extends React.Component {
       userInfo: {
         id: null,
         loginname: null,
-        avatar_url: null
+        avatar_url: null,
+        accesstoken: null
       },
       topic: navigation.getParam('topic')
     };
@@ -38,10 +42,12 @@ export default class Details extends React.Component {
   componentDidMount() {
     this.userDao.getUser()
       .then(res => {
-        const userInfo = JSON.parse(res);
-        this.setState(() => ({
-          userInfo
-        }));
+        if (res) {
+          const userInfo = JSON.parse(res);
+          this.setState(() => ({
+            userInfo
+          }));
+        }
       });
   }
 
@@ -69,15 +75,16 @@ export default class Details extends React.Component {
   }
 
   openLink(data) {
-    Linking.canOpenURL(data).then(supported => {
-      if (!supported) {
-        Toast('不支持打开该链接!');
-      } else {
-        Linking.openURL(data).catch(() => {
-          Toast('链接打开失败, 请稍后重试!');
-        });
-      }
-    });
+    Linking.canOpenURL(data)
+      .then(supported => {
+        if (!supported) {
+          Toast('不支持打开该链接!');
+        } else {
+          Linking.openURL(data).catch(() => {
+            Toast('链接打开失败, 请稍后重试!');
+          });
+        }
+      });
   }
 
   render() {
@@ -89,10 +96,8 @@ export default class Details extends React.Component {
       accesstoken: userInfo.accesstoken,
       userName: userInfo.loginname
     })}`;
-    console.log(uri);
-    console.log(userInfo);
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.container}>
         <Header
           title="详情"
           themeColor={themeColor}
@@ -100,7 +105,7 @@ export default class Details extends React.Component {
             navigation.goBack();
           })}
         />
-        <View style={{ flex: 1 }}>
+        <View style={styles.content}>
           <WebView
             onMessage={e => this.onMessage(e)}
             originWhitelist={['*']}

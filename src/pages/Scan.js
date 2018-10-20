@@ -111,7 +111,6 @@ export default class Scan extends React.Component {
       this.cancelable.promise
         .then(response => response.json())
         .then(res => {
-          console.log(res);
           this.loading = false;
           if (res.success) {
             const userInfo = {
@@ -134,6 +133,7 @@ export default class Scan extends React.Component {
           }
         })
         .catch(err => {
+          Toast(err);
           this.loading = false;
         });
     } else {
