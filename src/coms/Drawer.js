@@ -3,7 +3,6 @@ import {
   Text,
   View,
   Image,
-  ScrollView,
   Alert,
   TouchableOpacity,
   DeviceEventEmitter,
@@ -91,20 +90,26 @@ export default class Drawer extends Base {
       userInfo
     };
     this.loginListener = null;
+    this.willFocusSubscription = null;
   }
 
   componentDidMount() {
+    const { navOpts: { navigation } } = this.props;
     super.componentDidMount();
     this.loginListener = DeviceEventEmitter.addListener('CHANGE_LOGIN', params => {
       this.setState(() => ({
         userInfo: params
       }));
     });
+    this.willFocusSubscription = navigation.addListener('willFocus', () => {
+      navigation.closeDrawer();
+    });
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.loginListener) this.loginListener.remove();
+    if (this.willFocusSubscription) this.willFocusSubscription.remove();
   }
 
   renderItem(themeColor, navName, iconName, titleName) {
@@ -133,26 +138,8 @@ export default class Drawer extends Base {
             }
           ]
         );
-      } else if (navName === 'Publish') {
-        if (!userInfo.accesstoken) {
-          Alert.alert(
-            '',
-            '发表主题需要登录账户',
-            [
-              { text: '取消', style: 'cancel' },
-              {
-                text: '马上登录',
-                onPress: () => {
-                  navigation.navigate('Login', { themeColor });
-                }
-              }
-            ]
-          );
-        } else {
-          navigation.navigate(navName, { themeColor, userInfo });
-        }
       } else {
-        navigation.navigate(navName, { themeColor });
+        navigation.navigate(navName, { themeColor, userInfo });
       }
     };
     if (!userInfo.accesstoken && navName === 'Logout') return null;
@@ -198,23 +185,21 @@ export default class Drawer extends Base {
       { navName: 'Logout', iconName: 'logout', titleName: '退出登录' }
     ];
     return (
-      <View style={styles.container}>
-        <ScrollView>
-          <View style={[styles.header, { backgroundColor: themeColor }]}>
-            {this.renderUser()}
-            {/* <View style={styles.credit}>
-              <Iconfont style={styles.creditIcon} name="trophy" />
-              <Text style={styles.creditCount}>40</Text>
-            </View> */}
-          </View>
-          <View style={styles.list}>
-            {
-              list.map(v => {
-                return this.renderItem(themeColor, v.navName, v.iconName, v.titleName);
-              })
-            }
-          </View>
-        </ScrollView>
+      <View>
+        <View style={[styles.header, { backgroundColor: themeColor }]}>
+          {this.renderUser()}
+          {/* <View style={styles.credit}>
+            <Iconfont style={styles.creditIcon} name="trophy" />
+            <Text style={styles.creditCount}>40</Text>
+          </View> */}
+        </View>
+        <View style={styles.list}>
+          {
+            list.map(v => {
+              return this.renderItem(themeColor, v.navName, v.iconName, v.titleName);
+            })
+          }
+        </View>
       </View>
     );
   }
