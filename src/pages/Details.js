@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   content: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#fff'
   }
 });
 
@@ -37,18 +38,23 @@ export default class Details extends React.Component {
       },
       topic: navigation.getParam('topic')
     };
+    this.mounted = true;
   }
 
   componentDidMount() {
     this.userDao.getUser()
       .then(res => {
-        if (res) {
+        if (this.mounted && res) {
           const userInfo = JSON.parse(res);
           this.setState(() => ({
             userInfo
           }));
         }
       });
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   onMessage(e) {
@@ -94,7 +100,8 @@ export default class Details extends React.Component {
       themeColor,
       topicId: topic.id,
       accesstoken: userInfo.accesstoken,
-      userName: userInfo.loginname
+      userName: userInfo.loginname,
+      timeStamp: +new Date()
     })}`;
     return (
       <View style={styles.container}>
