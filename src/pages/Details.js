@@ -36,7 +36,7 @@ export default class Details extends React.Component {
         avatar_url: null,
         accesstoken: null
       },
-      topic: navigation.getParam('topic')
+      topicId: navigation.getParam('topicId')
     };
     this.mounted = true;
   }
@@ -95,10 +95,10 @@ export default class Details extends React.Component {
 
   render() {
     const { navigation } = this.props;
-    const { themeColor, topic, userInfo } = this.state;
+    const { themeColor, topicId, userInfo } = this.state;
     const uri = `http://192.168.1.100:8082/rnwv/topic.html${encodeData({
       themeColor,
-      topicId: topic.id,
+      topicId,
       accesstoken: userInfo.accesstoken,
       userName: userInfo.loginname,
       timeStamp: +new Date()
