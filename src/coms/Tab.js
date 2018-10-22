@@ -5,67 +5,38 @@ import {
   Image,
   FlatList,
   RefreshControl,
-  TouchableHighlight,
-  StyleSheet,
-  Dimensions
+  TouchableOpacity,
+  StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { getTimeInterval, formatDateTime } from '../utils/dateUtils';
+import { getTimeInterval } from '../utils/dateUtils';
 import Base from './Base';
 import ViewUtils from './ViewUtils';
 import httpUtils from '../utils/httpUtils';
+import Toast from '../utils/toastUtils';
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e1e1e1'
-  },
-  topic: {
     backgroundColor: '#fff'
   },
-  topicTop: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc'
-  },
-  topicHeader: {
-    height: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  topicTagContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  topicTag: {
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    borderRadius: 5,
-    marginRight: 5
-  },
-  topicTagText: {
-    color: '#fff'
-  },
-  topicInfo: {
-    width: Dimensions.get('window').width * 0.3333,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  topicContent: {
-    height: 115
+  topic: {
+    height: 150,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    justifyContent: 'center'
   },
   topicTitle: {
+    textAlignVertical: 'center',
+    paddingHorizontal: 10,
+    height: 50,
     fontSize: 18,
     color: '#333',
     lineHeight: 35
   },
-  topicDetail: {
-    lineHeight: 20
-  },
   topicBottom: {
-    padding: 10,
+    paddingHorizontal: 10,
     height: 50,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -73,17 +44,28 @@ const styles = StyleSheet.create({
   },
   author: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center'
   },
   avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     marginRight: 15
   },
   authorName: {
-    color: '#333'
+    color: '#333',
+    fontSize: 16
+  },
+  toTop: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25
   }
 });
 
@@ -194,52 +176,29 @@ export default class Tab extends Base {
     const { themeColor } = this.state;
     const { navigation } = this.props;
     return (
-      <View style={styles.topic}>
-        <TouchableHighlight
-          underlayColor="#eee"
-          onPress={() => {
-            navigation.navigate('Details', { themeColor, topic: item });
-          }}
-        >
-          <View style={styles.topicTop}>
-            <View style={styles.topicHeader}>
-              {this.renderTag(item.top, item.good, item.tab)}
-              <View style={styles.topicInfo}>
-                <Text style={{ color: themeColor }}>
-                  {item.reply_count}
-                </Text>
-                <Text>/</Text>
-                <Text>{item.visit_count}</Text>
-                <Text>·</Text>
-                <Text>{getTimeInterval(item.last_reply_at)}</Text>
-              </View>
-            </View>
-            <View style={styles.topicContent}>
-              <Text style={styles.topicTitle} ellipsizeMode="tail" numberOfLines={1}>{item.title}</Text>
-              <Text style={styles.topicDetail} ellipsizeMode="tail" numberOfLines={4}>{item.content}</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight
-          underlayColor="#eee"
-          onPress={() => {
-            // navigation.navigate('User');
-          }}
-        >
+      <TouchableOpacity
+        activeOpacity={0.2}
+        onPress={() => {
+          navigation.navigate('Details', { themeColor, topicId: item.id });
+        }}
+      >
+        <View style={styles.topic}>
           <View style={styles.topicBottom}>
-            <View style={styles.author}>
-              <Image style={styles.avatar} source={{ uri: item.author.avatar_url }} />
-              <Text style={styles.authorName}>{item.author.loginname}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.author}>
+                <Image style={styles.avatar} source={{ uri: item.author.avatar_url }} />
+                <Text style={styles.authorName}>{item.author.loginname}</Text>
+              </View>
+              <View>{this.renderTag(item.top, item.good, item.tab)}</View>
             </View>
-            <View>
-              <Text>
-                创建于：
-                {formatDateTime(item.create_at)}
-              </Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ color: themeColor }}>{item.reply_count}</Text>
+              <Text>{`  / ${item.visit_count} · ${getTimeInterval(item.last_reply_at)}`}</Text>
             </View>
           </View>
-        </TouchableHighlight>
-      </View>
+          <Text style={styles.topicTitle} ellipsizeMode="tail" numberOfLines={1}>{item.title}</Text>
+        </View>
+      </TouchableOpacity>
     );
   }
 
@@ -260,43 +219,21 @@ export default class Tab extends Base {
         tabLabel = null;
         break;
     }
-    const topLabel = top === true ? '置顶' : tabLabel;
-    const goodView = good === true ? <Text style={styles.topicTagText}>精华</Text> : null;
+    const topLabel = top ? <Text style={{ color: '#80bd01' }}>置顶 </Text> : null;
+    const goodLabel = good ? <Text style={{ color: 'red' }}> 精华 </Text> : null;
     return (
-      <View style={styles.topicTagContainer}>
-        {
-          topLabel
-          && (
-            <View
-              style={[styles.topicTag, { backgroundColor: themeColor }]}
-            >
-              <Text style={styles.topicTagText}>{topLabel}</Text>
-            </View>
-          )
-        }
-        {
-          goodView
-          && <View style={[styles.topicTag, { backgroundColor: themeColor }]}>{goodView}</View>
-        }
+      <View style={{ flexDirection: 'row', marginLeft: 15 }}>
+        {topLabel}
+        {goodLabel}
+        <Text style={{ color: themeColor }}>{` ${tabLabel} `}</Text>
       </View>
-    );
-  }
-
-  renderSeCom() {
-    return (
-      <View style={{ alignSelf: 'stretch', height: 10 }} />
     );
   }
 
   renderFooter() {
     const { themeColor, isLoaded } = this.state;
     const { page } = this.fetchParams;
-    if (page !== 1) {
-      return (
-        ViewUtils.getLoading(true, {}, themeColor)
-      );
-    }
-    if (isLoaded) {
+    if (page !== 1 || isLoaded) {
       return (
         ViewUtils.getLoading(true, {}, themeColor)
       );
@@ -313,17 +250,19 @@ export default class Tab extends Base {
     return (
       <View style={styles.container}>
         <FlatList
+          ref={f => { this.fl = f; }}
+          removeClippedSubviews
+          initialNumToRender={8}
           data={list}
           extraData={this.state}
           keyExtractor={item => item.id}
           renderItem={({ item }) => this.renderItem(item)}
+          ListFooterComponent={() => this.renderFooter()}
           onEndReached={() => this.fetchMoreData()}
           onEndReachedThreshold={0.1}
-          ItemSeparatorComponent={this.renderSeCom}
-          ListFooterComponent={() => this.renderFooter()}
           getItemLayout={(data, index) => ({
-            length: 216,
-            offset: 226 * index,
+            length: 150,
+            offset: 150 * index,
             index
           })}
           refreshControl={(
@@ -335,6 +274,11 @@ export default class Tab extends Base {
             />
           )}
         />
+        <View style={[styles.toTop, { backgroundColor: themeColor }]}>
+          {ViewUtils.getIconButton('totop', {}, () => {
+            this.fl.scrollToIndex({ viewPosition: 0, index: 0 });
+          })}
+        </View>
       </View>
     );
   }
