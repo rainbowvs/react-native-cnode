@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   WebView,
   DeviceEventEmitter,
-  ScrollView,
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -16,7 +15,8 @@ import { encodeData } from '../utils/httpUtils';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#fff'
   },
   unlogined: {
     flex: 1,
@@ -52,6 +52,7 @@ export default class Publish extends React.Component {
       userInfo
     };
     this.loginListener = null;
+    this.webview = null;
   }
 
   componentDidMount() {
@@ -66,11 +67,32 @@ export default class Publish extends React.Component {
     if (this.loginListener) this.loginListener.remove();
   }
 
+  onMessage(e) {
+    const { navigation } = this.props;
+    const { themeColor } = this.state;
+    const { data } = e.nativeEvent;
+    const { type, msg, params } = JSON.parse(data);
+    console.log(type, msg, params);
+    if (type === 'message') {
+      Toast(msg);
+      return false;
+    }
+    if (params) {
+      if (params.name) {
+        navigation.replace(params.name, { themeColor, topicId: params.topicId });
+        return false;
+      }
+    }
+    return false;
+  }
+
   renderContent() {
     const { navigation } = this.props;
     const { themeColor, userInfo } = this.state;
     const uri = `http://192.168.1.100:8082/rnwv/publish.html${encodeData({
-      themeColor
+      themeColor,
+      accesstoken: userInfo.accesstoken,
+      timeStamp: +new Date()
     })}`;
     if (!userInfo.accesstoken) {
       return (
@@ -87,17 +109,11 @@ export default class Publish extends React.Component {
       );
     }
     return (
-      <View style={{ flex: 1 }}>
-        <ScrollView style={{ flex: 1 }}>
-          <View style={{ width: 100, height: 500, backgroundColor: '#000' }} />
-          <WebView
-            style={{ flex: 1, height: 500 }}
-            onMessage={e => this.onMessage(e)}
-            originWhitelist={['*']}
-            source={{ uri }}
-          />
-        </ScrollView>
-      </View>
+      <WebView
+        onMessage={e => this.onMessage(e)}
+        originWhitelist={['*']}
+        source={{ uri }}
+      />
     );
   }
 
