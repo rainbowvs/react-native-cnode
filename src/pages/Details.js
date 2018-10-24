@@ -69,7 +69,7 @@ export default class Details extends React.Component {
     }
     if (params) {
       if (params.name) {
-        navigation.navigate('User', { themeColor, authorName: params.name });
+        navigation.push('User', { themeColor, userName: params.name });
         return false;
       }
       if (params.url) {
