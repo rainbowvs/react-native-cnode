@@ -27,15 +27,15 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginVertical: 20,
-    borderWidth: 1,
+    borderWidth: 3,
     borderColor: '#fff',
     borderRadius: 60,
-    width: 90,
-    height: 90
+    width: 100,
+    height: 100
   },
   userName: {
     color: '#fff',
-    fontSize: 20
+    fontSize: 24
   },
   credit: {
     flexDirection: 'row',
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
 const defaultUserInfo = {
   id: null,
   loginname: '点击头像登录',
-  avatar_url: 'https://static.hdslb.com/images/akari.jpg',
+  avatar_url: null,
   accesstoken: null
 };
 
@@ -90,26 +90,20 @@ export default class Drawer extends Base {
       userInfo
     };
     this.loginListener = null;
-    this.willFocusSubscription = null;
   }
 
   componentDidMount() {
-    const { navOpts: { navigation } } = this.props;
     super.componentDidMount();
     this.loginListener = DeviceEventEmitter.addListener('CHANGE_LOGIN', params => {
       this.setState(() => ({
         userInfo: params
       }));
     });
-    this.willFocusSubscription = navigation.addListener('willFocus', () => {
-      navigation.closeDrawer();
-    });
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.loginListener) this.loginListener.remove();
-    if (this.willFocusSubscription) this.willFocusSubscription.remove();
   }
 
   renderItem(themeColor, navName, iconName, titleName) {
@@ -160,16 +154,22 @@ export default class Drawer extends Base {
     const { navOpts: { navigation } } = this.props;
     const { themeColor, userInfo } = this.state;
     let navName = 'Login';
+    let navParams = {
+      themeColor
+    };
+    let userAvatar = <Image style={styles.avatar} source={require('../../statics/imgs/bg_avatar_default.jpg')} />;
     if (userInfo.accesstoken) {
       navName = 'User';
+      navParams = { ...navParams, userName: userInfo.loginname };
+      userAvatar = <Image style={styles.avatar} source={{ uri: userInfo.avatar_url }} />;
     }
     return (
       <Fragment>
         <TouchableOpacity
           activeOpacity={0.6}
-          onPress={() => navigation.navigate(navName, { themeColor })}
+          onPress={() => navigation.navigate(navName, navParams)}
         >
-          <Image style={styles.avatar} source={{ uri: userInfo.avatar_url }} />
+          {userAvatar}
         </TouchableOpacity>
         <Text style={styles.userName}>{userInfo.loginname}</Text>
       </Fragment>
