@@ -24,7 +24,8 @@ module.exports = {
     "no-restricted-syntax": 0, //不允许指定（即用户定义）语法。
     "guard-for-in": 0, // for in 遍历
     "class-methods-use-this": 0, // 静态方法
-    "prefer-promise-reject-errors": 0 //promise reject Error
+    "prefer-promise-reject-errors": 0, // promise reject Error
+    "global-require": 0 // global-require
   },
   "globals": {
     "__DEV__": true,
