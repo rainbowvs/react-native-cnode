@@ -8,20 +8,20 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
-const NAV_BAR_HEIGHT_IOS = 44;
-const NAV_BAR_HEIGHT_ANDROID = 50;
-const STATUSBAR_HEIGHT = 20;
+const IOS = Platform.OS === 'ios';
+const NAV_BAR_HEIGHT = 50;
+const STATUSBAR_HEIGHT = IOS ? 20 : StatusBar.currentHeight;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: STATUSBAR_HEIGHT,
+    paddingTop: STATUSBAR_HEIGHT,
     backgroundColor: '#80bd01'
   },
   navBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: Platform.OS === 'ios' ? NAV_BAR_HEIGHT_IOS : NAV_BAR_HEIGHT_ANDROID
+    height: NAV_BAR_HEIGHT
   },
   navBarTitleContainer: {
     alignItems: 'center',
@@ -42,66 +42,42 @@ const styles = StyleSheet.create({
   }
 });
 
-const StatusBarShape = {
-  barStyle: PropTypes.oneOf(['default', 'light-content']),
-  hidden: PropTypes.bool,
-  backgroundColor: PropTypes.string,
-  translucent: PropTypes.bool
-};
-
-export default class Header extends React.Component {
-  static defaultProps = {
-    themeColor: '#80bd01',
-    statusBar: {
-      barStyle: 'light-content',
-      hidden: false,
-      backgroundColor: '#80bd01',
-      translucent: true
-    },
-    title: '',
-    titleView: undefined,
-    rightButton: null,
-    leftButton: null
-  }
-
-  componentDidMount() {
-    return true;
-  }
-
-  render() {
-    const {
-      themeColor,
-      leftButton,
-      rightButton,
-      title,
-      titleView
-    } = this.props;
-    let { statusBar } = this.props;
-    statusBar = {
-      ...statusBar,
-      backgroundColor: themeColor
-    };
-    const titleElem = titleView !== undefined
-      ? titleView
-      : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.title}>{title}</Text>;
-    return (
-      <View style={[styles.container, { backgroundColor: themeColor }]}>
-        <StatusBar {...statusBar} />
-        <View style={styles.navBar} backgroundColor={themeColor}>
-          <View style={styles.navBarButton}>{leftButton}</View>
-          <View style={styles.navBarTitleContainer}>{titleElem}</View>
-          <View style={styles.navBarButton}>{rightButton}</View>
-        </View>
+const Header = props => {
+  const {
+    themeColor,
+    leftButton,
+    rightButton,
+    title,
+    titleView
+  } = props;
+  const titleElem = titleView !== undefined
+    ? titleView
+    : <Text ellipsizeMode="tail" numberOfLines={1} style={styles.title}>{title}</Text>;
+  return (
+    <View style={[styles.container, { backgroundColor: themeColor }]}>
+      <View style={styles.navBar}>
+        <View style={styles.navBarButton}>{leftButton}</View>
+        <View style={styles.navBarTitleContainer}>{titleElem}</View>
+        <View style={styles.navBarButton}>{rightButton}</View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
 Header.propTypes = {
   themeColor: PropTypes.string,
-  statusBar: PropTypes.shape(StatusBarShape),
   title: PropTypes.string,
   titleView: PropTypes.element,
   rightButton: PropTypes.element,
   leftButton: PropTypes.element
 };
+
+Header.defaultProps = {
+  themeColor: '#80bd01',
+  title: '',
+  titleView: undefined,
+  rightButton: null,
+  leftButton: null
+};
+
+export default Header;
