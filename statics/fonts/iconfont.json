@@ -1,6 +1,7 @@
 {
   "comment": 58936,
   "smile": 59267,
+  "reload": 59272,
   "logout": 59276,
   "login": 59277,
   "setting": 59278,
@@ -13,6 +14,8 @@
   "like": 59336,
   "scan": 59348,
   "qrcode": 59357,
+  "star": 59359,
+  "share": 59367,
   "right": 59371,
   "up": 59372,
   "down": 59373,
@@ -20,7 +23,10 @@
   "totop": 59375,
   "menu": 59380,
   "check": 59388,
+  "ellipsis": 59390,
+  "close": 59389,
   "bg-colors": 59392,
   "check-square-fill": 59467,
+  "star-fill": 59498,
   "github-fill": 59525
 }
