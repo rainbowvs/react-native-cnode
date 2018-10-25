@@ -3,8 +3,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <!-- 设置透明背景 -->
+        <!-- 状态栏透明背景:true=有阴影, windowLightStatusBar失效, 固定白色 -->
         <item name="android:windowIsTranslucent">true</item>
+        <!-- 使底部导航栏透明 -->
+        <item name="android:windowTranslucentNavigation">true</item>
+        <!-- 状态栏不占据空间 -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <!-- 状态栏白色字体 -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 </resources>
