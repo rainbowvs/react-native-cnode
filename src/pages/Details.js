@@ -2,8 +2,7 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  WebView,
-  Linking
+  WebView
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
@@ -72,25 +71,18 @@ export default class Details extends React.Component {
         navigation.push('User', { themeColor, userName: params.name });
         return false;
       }
-      if (params.url) {
-        this.openLink(params.url);
+      if (params.uri) {
+        this.openLink(params.uri, params.title);
         return false;
       }
     }
     return false;
   }
 
-  openLink(data) {
-    Linking.canOpenURL(data)
-      .then(supported => {
-        if (!supported) {
-          Toast('不支持打开该链接!');
-        } else {
-          Linking.openURL(data).catch(() => {
-            Toast('链接打开失败, 请稍后重试!');
-          });
-        }
-      });
+  openLink(uri, title) {
+    const { navigation } = this.props;
+    const { themeColor } = this.state;
+    navigation.navigate('XWebview', { themeColor, uri, title });
   }
 
   render() {
