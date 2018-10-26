@@ -5,9 +5,12 @@
         <!-- Customize your theme here. -->
 
         <!-- 半透明状态栏, 不占空间, 字体白色 -->
-        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
         <!-- 底部导航透明 -->
         <item name="android:windowTranslucentNavigation">true</item>
+
+        <!--Android 5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
     </style>
 
