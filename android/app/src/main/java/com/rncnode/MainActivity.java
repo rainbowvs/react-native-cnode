@@ -2,7 +2,11 @@ package com.rncnode;
 
 import android.os.Bundle; // 启动屏相关
 import com.facebook.react.ReactActivity;
+import com.rncnode.module.ShareModule;
+import com.umeng.socialize.UMShareAPI;
 import org.devio.rn.splashscreen.SplashScreen; // 启动屏相关
+
+import android.content.Intent;
 
 public class MainActivity extends ReactActivity {
 
@@ -20,7 +24,21 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen.show(this); // 关键
+        SplashScreen.show(this, true); // 关键
         super.onCreate(savedInstanceState);
+        ShareModule.initActivity(this);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 解决内存泄漏问题
+        UMShareAPI.get(this).release();
     }
 }
