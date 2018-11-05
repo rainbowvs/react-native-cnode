@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     color: '#fff'
   },
   navBarButton: {
+    flexDirection: 'row',
     alignItems: 'center'
   }
 });
@@ -47,6 +48,7 @@ const Header = props => {
     themeColor,
     leftButton,
     rightButton,
+    expandButton,
     title,
     titleView
   } = props;
@@ -56,8 +58,11 @@ const Header = props => {
   return (
     <View style={[styles.container, { backgroundColor: themeColor }]}>
       <View style={styles.navBar}>
-        <View style={styles.navBarButton}>{leftButton}</View>
-        <View style={styles.navBarTitleContainer}>{titleElem}</View>
+        <View style={styles.navBarButton}>
+          {leftButton}
+          {expandButton}
+        </View>
+        <View style={[styles.navBarTitleContainer, { left: expandButton ? 80 : 40 }]}>{titleElem}</View>
         <View style={styles.navBarButton}>{rightButton}</View>
       </View>
     </View>
@@ -69,7 +74,8 @@ Header.propTypes = {
   title: PropTypes.string,
   titleView: PropTypes.element,
   rightButton: PropTypes.element,
-  leftButton: PropTypes.element
+  leftButton: PropTypes.element,
+  expandButton: PropTypes.element
 };
 
 Header.defaultProps = {
@@ -77,7 +83,8 @@ Header.defaultProps = {
   title: '',
   titleView: undefined,
   rightButton: null,
-  leftButton: null
+  leftButton: null,
+  expandButton: null
 };
 
 export default Header;
