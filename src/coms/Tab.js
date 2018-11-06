@@ -179,7 +179,7 @@ export default class Tab extends Base {
       <TouchableOpacity
         activeOpacity={0.2}
         onPress={() => {
-          navigation.navigate('Details', { themeColor, topicId: item.id });
+          navigation.navigate('Details', { themeColor, topicId: item.id, topicTitle: item.title });
         }}
       >
         <View style={styles.topic}>
@@ -204,6 +204,7 @@ export default class Tab extends Base {
 
   renderTag(top, good, tab) {
     const { themeColor } = this.state;
+    const { tabText } = this.fetchParams;
     let tabLabel = null;
     switch (tab) {
       case 'share':
@@ -225,7 +226,7 @@ export default class Tab extends Base {
       <View style={{ flexDirection: 'row', marginLeft: 15 }}>
         {topLabel}
         {goodLabel}
-        <Text style={{ color: themeColor }}>{` ${tabLabel} `}</Text>
+        { tabText === 'all' && <Text style={{ color: themeColor }}>{` ${tabLabel} `}</Text> }
       </View>
     );
   }
