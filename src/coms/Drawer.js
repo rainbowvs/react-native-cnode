@@ -90,6 +90,7 @@ export default class Drawer extends Base {
       userInfo
     };
     this.loginListener = null;
+    this.timer = null;
   }
 
   componentDidMount() {
@@ -106,8 +107,16 @@ export default class Drawer extends Base {
     if (this.loginListener) this.loginListener.remove();
   }
 
-  renderItem(themeColor, navName, iconName, titleName) {
+  closeDrawerCb(navName, params) {
     const { navOpts: { navigation } } = this.props;
+    clearTimeout(this.timer);
+    navigation.closeDrawer();
+    this.timer = setTimeout(() => {
+      navigation.navigate(navName, params);
+    }, 570);
+  }
+
+  renderItem(themeColor, navName, iconName, titleName) {
     const { userInfo } = this.state;
     const callback = () => {
       if (navName === 'Logout') {
@@ -133,7 +142,7 @@ export default class Drawer extends Base {
           ]
         );
       } else {
-        navigation.navigate(navName, { themeColor, userInfo });
+        this.closeDrawerCb(navName, { themeColor, userInfo });
       }
     };
     if (!userInfo.accesstoken && navName === 'Logout') return null;
@@ -151,7 +160,6 @@ export default class Drawer extends Base {
   }
 
   renderUser() {
-    const { navOpts: { navigation } } = this.props;
     const { themeColor, userInfo } = this.state;
     let navName = 'Login';
     let navParams = {
@@ -167,7 +175,7 @@ export default class Drawer extends Base {
       <Fragment>
         <TouchableOpacity
           activeOpacity={0.6}
-          onPress={() => navigation.navigate(navName, navParams)}
+          onPress={() => this.closeDrawerCb(navName, navParams)}
         >
           {userAvatar}
         </TouchableOpacity>
@@ -188,10 +196,6 @@ export default class Drawer extends Base {
       <View>
         <View style={[styles.header, { backgroundColor: themeColor }]}>
           {this.renderUser()}
-          {/* <View style={styles.credit}>
-            <Iconfont style={styles.creditIcon} name="trophy" />
-            <Text style={styles.creditCount}>40</Text>
-          </View> */}
         </View>
         <View style={styles.list}>
           {
