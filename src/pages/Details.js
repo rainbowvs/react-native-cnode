@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Header from '../coms/Header';
+import Share from '../coms/Share';
 import Toast from '../utils/toastUtils';
 import UserDao from '../../expand/dao/UserDao';
 import ViewUtils from '../coms/ViewUtils';
@@ -35,7 +36,9 @@ export default class Details extends React.Component {
         avatar_url: null,
         accesstoken: null
       },
-      topicId: navigation.getParam('topicId')
+      shareBoardVisible: false,
+      topicId: navigation.getParam('topicId'),
+      topicTitle: navigation.getParam('topicTitle')
     };
     this.mounted = true;
   }
@@ -61,7 +64,6 @@ export default class Details extends React.Component {
     const { themeColor } = this.state;
     const { data } = e.nativeEvent;
     const { type, msg, params } = JSON.parse(data);
-    console.log(type, msg, params);
     if (type === 'message') {
       Toast(msg);
       return false;
@@ -85,23 +87,48 @@ export default class Details extends React.Component {
     navigation.navigate('XWebview', { themeColor, uri, title });
   }
 
+  renderShareBoard(topicId, topicTitle) {
+    // 分享面板
+    const { shareBoardVisible } = this.state;
+    return (
+      <Share
+        visible={shareBoardVisible}
+        params={{
+          url: `https://cnodejs.org/topic/${topicId}`,
+          title: 'cnode社区',
+          content: topicTitle,
+          img: undefined
+        }}
+        onClose={() => {
+          this.setState({
+            shareBoardVisible: false
+          });
+        }}
+      />
+    );
+  }
+
   render() {
     const { navigation } = this.props;
-    const { themeColor, topicId, userInfo } = this.state;
+    const { themeColor, topicId, topicTitle, userInfo } = this.state;
     const uri = `http://192.168.1.100:8082/rnwv/topic.html${encodeData({
       themeColor,
       topicId,
       accesstoken: userInfo.accesstoken,
-      userName: userInfo.loginname,
-      timeStamp: +new Date()
+      userName: userInfo.loginname
     })}`;
     return (
       <View style={styles.container}>
         <Header
-          title="详情"
+          title={topicTitle}
           themeColor={themeColor}
           leftButton={ViewUtils.getIconButton('arrowleft', { marginLeft: 10 }, () => {
             navigation.goBack();
+          })}
+          rightButton={ViewUtils.getIconButton('share', { marginRight: 10 }, () => {
+            this.setState({
+              shareBoardVisible: true
+            });
           })}
         />
         <View style={styles.content}>
@@ -111,6 +138,7 @@ export default class Details extends React.Component {
             source={{ uri }}
           />
         </View>
+        {this.renderShareBoard(topicId, topicTitle)}
       </View>
     );
   }
