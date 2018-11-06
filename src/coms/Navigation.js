@@ -1,6 +1,6 @@
 import React from 'react';
-import { Easing, Animated } from 'react-native';
-import { createStackNavigator, createDrawerNavigator } from 'react-navigation';
+import { Easing, Animated, ScrollView } from 'react-native';
+import { createStackNavigator, createDrawerNavigator, SafeAreaView, NavigationActions } from 'react-navigation';
 import StackViewStyleInterpolator from 'react-navigation-stack/dist/views/StackView/StackViewStyleInterpolator';
 import App from '../../App';
 import Home from '../pages/Home';
@@ -10,17 +10,26 @@ import User from '../pages/User';
 import Login from '../pages/Login';
 import Scan from '../pages/Scan';
 import Publish from '../pages/Publish';
+import XWebview from '../pages/XWebview';
 import Drawer from './Drawer';
+import Toast from '../utils/toastUtils';
 
-export const DrawerNav = createDrawerNavigator({
+
+const DrawerNav = createDrawerNavigator({
   Home: {
     screen: Home
   }
 }, {
-  contentComponent: props => (<Drawer navOpts={props} />)
+  contentComponent: props => (
+    <ScrollView>
+      <SafeAreaView style={{ flex: 1 }} forceInset={{ top: 'always', horizontal: 'never' }}>
+        <Drawer navOpts={props} />
+      </SafeAreaView>
+    </ScrollView>
+  )
 });
 
-export const StackNav = createStackNavigator({
+const StackNav = createStackNavigator({
   App: {
     screen: App
   },
@@ -44,6 +53,9 @@ export const StackNav = createStackNavigator({
   },
   Publish: {
     screen: Publish
+  },
+  XWebview: {
+    screen: XWebview
   }
 }, {
   navigationOptions: {
@@ -58,3 +70,27 @@ export const StackNav = createStackNavigator({
     screenInterpolator: StackViewStyleInterpolator.forHorizontal // android左右切换
   })
 });
+
+let lastBackPressed = false;
+const defaultGetStateForAction = StackNav.router.getStateForAction;
+StackNav.router.getStateForAction = (action, state) => {
+  if (state) {
+    if (action.type === NavigationActions.BACK) {
+      if (state.routes[state.index].routeName === 'Home') {
+        if (!state.routes[state.index].isDrawerOpen && lastBackPressed + 2000 < Date.now()) {
+          Toast('再点击一次退出应用');
+          lastBackPressed = Date.now();
+          const routes = [...state.routes];
+          return {
+            ...state,
+            ...state.routes,
+            index: routes.length - 1
+          };
+        }
+      }
+    }
+  }
+  return defaultGetStateForAction(action, state);
+};
+
+export default StackNav;
