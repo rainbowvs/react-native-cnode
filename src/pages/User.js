@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     color: '#fff'
   },
   registerDate: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#fff'
   },
   tab: {
@@ -210,7 +210,6 @@ export default class User extends React.Component {
     };
     this.cancelable = null;
     this.mounted = true;
-    this.willBlurSubscription = null;
   }
 
   componentDidMount() {
@@ -247,7 +246,7 @@ export default class User extends React.Component {
         }
       })
       .catch(err => {
-        Toast(err);
+        if (!err.isCanceled) Toast(err);
         if (this.mounted) {
           this.setState(() => ({
             loading: false
