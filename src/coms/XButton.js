@@ -9,82 +9,67 @@ import {
 import PropTypes from 'prop-types';
 import IconFont from './IconFont';
 
-export default class XButton extends React.Component {
-  static defaultProps = {
-    disabled: false,
-    buttonStyle: {},
-    textStyle: {},
-    iconStyle: { color: '#fff', fontSize: 26 },
-    fbType: 'Highlight',
-    activeOpacity: 0.2,
-    underlayColor: '#eee',
-    iconName: '',
-    text: ''
-  }
-
-  renderButtonContent() {
-    const {
-      buttonStyle,
-      textStyle,
-      iconStyle,
-      iconName,
-      text
-    } = this.props;
-    return (
-      <View style={buttonStyle}>
-        {
-          (iconName !== '') && (
-            <IconFont
-              name={iconName}
-              style={iconStyle}
-            />
-          )
-        }
-        {(text !== '') && <Text style={textStyle}>{text}</Text>}
-      </View>
-    );
-  }
-
-  renderButton() {
-    const {
-      disabled,
-      buttonStyle,
-      onPress,
-      fbType,
-      activeOpacity,
-      underlayColor
-    } = this.props;
-    if (!disabled) {
-      if (fbType === 'Highlight') {
-        return (
-          <TouchableHighlight
-            onPress={onPress}
-            underlayColor={underlayColor}
-          >
-            {this.renderButtonContent()}
-          </TouchableHighlight>
-        );
+const renderButtonContent = props => {
+  const {
+    buttonStyle,
+    textStyle,
+    iconStyle,
+    iconName,
+    text
+  } = props;
+  return (
+    <View style={buttonStyle}>
+      {
+        (iconName !== '') && (
+          <IconFont
+            name={iconName}
+            style={iconStyle}
+          />
+        )
       }
+      {(text !== '') && <Text style={textStyle}>{text}</Text>}
+    </View>
+  );
+};
+
+const XButton = props => {
+  const {
+    disabled,
+    buttonStyle,
+    onPress,
+    fbType,
+    activeOpacity,
+    underlayColor
+  } = props;
+
+  if (!disabled) {
+    if (fbType === 'Highlight') {
       return (
-        <TouchableOpacity
+        <TouchableHighlight
           onPress={onPress}
-          activeOpacity={activeOpacity}
+          underlayColor={underlayColor}
         >
-          {this.renderButtonContent()}
-        </TouchableOpacity>
+          {renderButtonContent(props)}
+        </TouchableHighlight>
       );
     }
     return (
-      <View style={[buttonStyle, { opacity: 0.8 }]}>
-        <ActivityIndicator color="#fff" />
-      </View>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={activeOpacity}
+      >
+        {renderButtonContent(props)}
+      </TouchableOpacity>
     );
   }
+  return (
+    <View style={[buttonStyle, { opacity: 0.8 }]}>
+      <ActivityIndicator color="#fff" />
+    </View>
+  );
+};
 
-  render() {
-    return this.renderButton();
-  }
-}
+export default XButton;
 
 XButton.propTypes = {
   disabled: PropTypes.bool,
@@ -97,4 +82,16 @@ XButton.propTypes = {
   underlayColor: PropTypes.string,
   iconName: PropTypes.string,
   text: PropTypes.string
+};
+
+XButton.defaultProps = {
+  disabled: false,
+  buttonStyle: {},
+  textStyle: {},
+  iconStyle: { color: '#fff', fontSize: 26 },
+  fbType: 'Highlight',
+  activeOpacity: 0.2,
+  underlayColor: '#eee',
+  iconName: '',
+  text: ''
 };
