@@ -3,12 +3,13 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableHighlight,
+  TouchableOpacity,
   Dimensions,
   StyleSheet,
   DeviceEventEmitter
 } from 'react-native';
 import PropTypes from 'prop-types';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import ThemeDao, { ThemeData } from '../../expand/dao/ThemeDao';
 import ViewUtils from '../coms/ViewUtils';
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Theme extends React.Component {
+export default class Theme extends BaseCom {
   constructor(props) {
     super(props);
     this.themeDao = new ThemeDao();
@@ -65,16 +66,16 @@ export default class Theme extends React.Component {
     for (let i = 0, keys = Object.keys(ThemeData); i < keys.length; i += 1) {
       const themeName = keys[i];
       elems.push(
-        <TouchableHighlight
+        <TouchableOpacity
           key={themeName}
-          underlayColor="white"
+          activeOpacity={0.6}
           style={{ marginVertical: 5 }}
           onPress={() => this.onSelectTheme(ThemeData[themeName])}
         >
           <View style={[styles.item, { backgroundColor: ThemeData[themeName] }]}>
             <Text style={styles.itemText}>{themeName}</Text>
           </View>
-        </TouchableHighlight>
+        </TouchableOpacity>
       );
     }
     return elems;

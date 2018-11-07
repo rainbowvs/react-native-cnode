@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
+import BaseCom from '../coms/BaseCom';
 import Toast from '../utils/toastUtils';
 import IconFont from '../coms/IconFont';
 import ViewUtils from '../coms/ViewUtils';
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class User extends React.Component {
+export default class User extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
@@ -321,7 +322,7 @@ export default class User extends React.Component {
         activeOpacity={0.2}
         style={styles.itemTouchable}
         onPress={() => {
-          navigation.push('Details', { themeColor, topicId: item.id });
+          navigation.push('Details', { themeColor, topicId: item.id, topicTitle: item.title });
         }}
       >
         <View style={styles.itemContainer}>

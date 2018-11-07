@@ -5,7 +5,7 @@ import {
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Base from '../coms/Base';
+import ListenerCom from '../coms/ListenerCom';
 import Header from '../coms/Header';
 import ViewUtils from '../coms/ViewUtils';
 import Tab from '../coms/Tab';
@@ -16,13 +16,12 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Home extends Base {
+export default class Home extends ListenerCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
-    this.state = {
-      themeColor: navigation.getParam('themeColor')
-    };
+    const themeColor = navigation.getParam('themeColor');
+    this.state = { themeColor };
     this.tabList = [
       { label: '全部', text: 'all' },
       { label: '精华', text: 'good' },

@@ -6,6 +6,7 @@ import {
   DeviceEventEmitter
 } from 'react-native';
 import PropTypes from 'prop-types';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import ViewUtils from '../coms/ViewUtils';
 import XButton from '../coms/XButton';
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Login extends React.Component {
+export default class Login extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
@@ -53,7 +54,7 @@ export default class Login extends React.Component {
     this.userDao = new UserDao();
     this.state = {
       themeColor,
-      token: 'aa1fdffa-c4d1-408b-b54a-27403f9b3a55',
+      token: '',
       loading: false
     };
     this.cancelable = null;
@@ -64,12 +65,12 @@ export default class Login extends React.Component {
   }
 
   submit() {
-    const { token } = this.state;
+    const { themeColor, token } = this.state;
     const { navigation } = this.props;
-    // if (token === '') {
-    //   Toast('accesstoken不能为空');
-    //   return;
-    // }
+    if (token === '') {
+      Toast('accesstoken不能为空');
+      return;
+    }
     this.setState(() => ({
       loading: true
     }));
@@ -93,7 +94,14 @@ export default class Login extends React.Component {
           DeviceEventEmitter.emit('CHANGE_LOGIN', userInfo);
           this.userDao.saveUser(userInfo)
             .then(saveResult => {
-              if (saveResult.success) navigation.goBack();
+              if (saveResult.success) {
+                const replaceName = navigation.getParam('replaceName');
+                if (replaceName) {
+                  navigation.replace(replaceName, { themeColor, userInfo });
+                } else {
+                  navigation.goBack();
+                }
+              }
             })
             .catch(saveError => {
               Toast(saveError);
@@ -103,7 +111,7 @@ export default class Login extends React.Component {
         }
       })
       .catch(err => {
-        Toast(err);
+        if (!err.isCanceled) Toast(err);
         this.setState(() => ({
           loading: false
         }));
@@ -122,6 +130,7 @@ export default class Login extends React.Component {
             navigation.goBack();
           })}
           rightButton={ViewUtils.getIconButton('scan', { marginRight: 10 }, () => {
+            if (this.cancelable) this.cancelable.cancel();
             navigation.navigate('Scan', { themeColor });
           })}
         />

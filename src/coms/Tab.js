@@ -10,10 +10,9 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { getTimeInterval } from '../utils/dateUtils';
-import Base from './Base';
+import ListenerCom from './ListenerCom';
 import ViewUtils from './ViewUtils';
 import httpUtils from '../utils/httpUtils';
-import Toast from '../utils/toastUtils';
 
 
 const styles = StyleSheet.create({
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Tab extends Base {
+export default class Tab extends ListenerCom {
   constructor(props) {
     super(props);
     const { tabText, themeColor } = props;
@@ -232,8 +231,11 @@ export default class Tab extends Base {
   }
 
   renderFooter() {
-    const { themeColor, isLoaded } = this.state;
+    const { themeColor, isLoaded, isRefreshing } = this.state;
     const { page } = this.fetchParams;
+    if (isRefreshing) {
+      return null;
+    }
     if (page !== 1 || isLoaded) {
       return (
         ViewUtils.getLoading(true, {}, themeColor)
@@ -275,11 +277,16 @@ export default class Tab extends Base {
             />
           )}
         />
-        <View style={[styles.toTop, { backgroundColor: themeColor }]}>
-          {ViewUtils.getIconButton('totop', {}, () => {
-            this.fl.scrollToIndex({ viewPosition: 0, index: 0 });
-          })}
-        </View>
+        {
+          list.length > 0
+            && (
+              <View style={[styles.toTop, { backgroundColor: themeColor }]}>
+                {ViewUtils.getIconButton('totop', {}, () => {
+                  this.fl.scrollToIndex({ viewPosition: 0, index: 0 });
+                })}
+              </View>
+            )
+        }
       </View>
     );
   }

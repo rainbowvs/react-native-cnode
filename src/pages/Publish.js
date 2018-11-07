@@ -8,6 +8,7 @@ import {
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import Toast from '../utils/toastUtils';
 import ViewUtils from '../coms/ViewUtils';
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Publish extends React.Component {
+export default class Publish extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
@@ -72,14 +73,17 @@ export default class Publish extends React.Component {
     const { themeColor } = this.state;
     const { data } = e.nativeEvent;
     const { type, msg, params } = JSON.parse(data);
-    console.log(type, msg, params);
     if (type === 'message') {
       Toast(msg);
       return false;
     }
     if (params) {
       if (params.name) {
-        navigation.replace(params.name, { themeColor, topicId: params.topicId });
+        navigation.replace(params.name, {
+          themeColor,
+          topicId: params.topicId,
+          topicTitle: params.topicTitle
+        });
         return false;
       }
     }
@@ -89,7 +93,7 @@ export default class Publish extends React.Component {
   renderContent() {
     const { navigation } = this.props;
     const { themeColor, userInfo } = this.state;
-    const uri = `http://192.168.1.100:8082/rnwv/publish.html${encodeData({
+    const uri = `http://rainbowvs.com/rnwv/publish.html${encodeData({
       themeColor,
       accesstoken: userInfo.accesstoken,
       timeStamp: +new Date()

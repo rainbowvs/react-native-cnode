@@ -5,6 +5,7 @@ import {
   WebView
 } from 'react-native';
 import PropTypes from 'prop-types';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import Share from '../coms/Share';
 import Toast from '../utils/toastUtils';
@@ -22,23 +23,25 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Details extends React.Component {
+export default class Details extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
+    const topicId = navigation.getParam('topicId');
+    const topicTitle = navigation.getParam('topicTitle');
     this.userDao = new UserDao();
     this.state = {
       themeColor,
+      topicId,
+      topicTitle,
       userInfo: {
         id: null,
         loginname: null,
         avatar_url: null,
         accesstoken: null
       },
-      shareBoardVisible: false,
-      topicId: navigation.getParam('topicId'),
-      topicTitle: navigation.getParam('topicTitle')
+      shareBoardVisible: false
     };
     this.mounted = true;
   }
@@ -110,8 +113,13 @@ export default class Details extends React.Component {
 
   render() {
     const { navigation } = this.props;
-    const { themeColor, topicId, topicTitle, userInfo } = this.state;
-    const uri = `http://192.168.1.100:8082/rnwv/topic.html${encodeData({
+    const {
+      themeColor,
+      topicId,
+      topicTitle,
+      userInfo
+    } = this.state;
+    const uri = `http://rainbowvs.com/rnwv/topic.html${encodeData({
       themeColor,
       topicId,
       accesstoken: userInfo.accesstoken,

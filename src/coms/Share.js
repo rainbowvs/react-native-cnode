@@ -63,7 +63,7 @@ const shareList = [
   { name: 'weibo', label: '微博', platform: SHARE_PLATFORM.SINA, color: '#d62829' }
 ];
 
-const shareCallback = (onClose, platform, url = '', title = '', content = '', img = 'http://192.168.1.100:8082/rnwv/logo_300x300.png') => {
+const shareCallback = (onClose, platform, url = '', title = '', content = '', img = 'http://rainbowvs.com/rnwv/logo_300x300.png') => {
   switch (platform) {
     case SHARE_PLATFORM.QQ:
       UShare.share(

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import PropTypes from 'prop-types';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import Toast from '../utils/toastUtils';
 import httpUtils from '../utils/httpUtils';
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class Scan extends React.Component {
+export default class Scan extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
@@ -133,7 +134,7 @@ export default class Scan extends React.Component {
           }
         })
         .catch(err => {
-          Toast(err);
+          if (!err.isCanceled) Toast(err);
           this.loading = false;
         });
     } else {

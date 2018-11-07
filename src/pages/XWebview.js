@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import ModalDropdown from 'react-native-modal-dropdown';
+import BaseCom from '../coms/BaseCom';
 import Header from '../coms/Header';
 import ViewUtils from '../coms/ViewUtils';
 import IconFont from '../coms/IconFont';
@@ -51,15 +52,17 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class XWebview extends React.Component {
+export default class XWebview extends BaseCom {
   constructor(props) {
     super(props);
     const { navigation } = props;
     const themeColor = navigation.getParam('themeColor');
+    const uri = navigation.getParam('uri');
+    const title = navigation.getParam('title');
     this.state = {
       themeColor,
-      uri: navigation.getParam('uri'),
-      title: navigation.getParam('title'),
+      uri,
+      title,
       wvNavState: null,
       shareBoardVisible: false
     };
@@ -171,7 +174,6 @@ export default class XWebview extends React.Component {
       wvNavState
     } = this.state;
     const headerTitle = wvNavState === null ? '' : wvNavState.title;
-    console.log('f5');
     return (
       <View style={styles.container}>
         <Header

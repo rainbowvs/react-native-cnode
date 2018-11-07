@@ -62,7 +62,9 @@ const Header = props => {
           {leftButton}
           {expandButton}
         </View>
-        <View style={[styles.navBarTitleContainer, { left: expandButton ? 80 : 40 }]}>{titleElem}</View>
+        <View style={[styles.navBarTitleContainer, { left: expandButton ? 80 : 40 }]}>
+          {titleElem}
+        </View>
         <View style={styles.navBarButton}>{rightButton}</View>
       </View>
     </View>

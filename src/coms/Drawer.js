@@ -9,7 +9,7 @@ import {
   StyleSheet
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Base from './Base';
+import ListenerCom from './ListenerCom';
 import UserDao from '../../expand/dao/UserDao';
 import Toast from '../utils/toastUtils';
 import XButton from './XButton';
@@ -79,14 +79,15 @@ const defaultUserInfo = {
   accesstoken: null
 };
 
-export default class Drawer extends Base {
+export default class Drawer extends ListenerCom {
   constructor(props) {
     super(props);
     const { navOpts: { navigation } } = this.props;
+    const themeColor = navigation.getParam('themeColor');
     const userInfo = (navigation.getParam('userInfo') && JSON.parse(navigation.getParam('userInfo'))) || defaultUserInfo;
     this.userDao = new UserDao();
     this.state = {
-      themeColor: navigation.getParam('themeColor'),
+      themeColor,
       userInfo
     };
     this.loginListener = null;
@@ -119,30 +120,39 @@ export default class Drawer extends Base {
   renderItem(themeColor, navName, iconName, titleName) {
     const { userInfo } = this.state;
     const callback = () => {
-      if (navName === 'Logout') {
-        Alert.alert(
-          '',
-          '确定要退出登录吗？',
-          [
-            { text: '取消', style: 'cancel' },
-            {
-              text: '确定',
-              onPress: () => {
-                this.userDao.removeUser()
-                  .then(res => {
-                    if (res.success) {
-                      this.setState(({
-                        userInfo: defaultUserInfo
-                      }));
-                      Toast('退出成功');
-                    }
-                  });
+      switch (navName) {
+        case 'Logout':
+          Alert.alert(
+            '',
+            '确定要退出登录吗？',
+            [
+              { text: '取消', style: 'cancel' },
+              {
+                text: '确定',
+                onPress: () => {
+                  this.userDao.removeUser()
+                    .then(res => {
+                      if (res.success) {
+                        this.setState(({
+                          userInfo: defaultUserInfo
+                        }));
+                        Toast('退出成功');
+                      }
+                    });
+                }
               }
-            }
-          ]
-        );
-      } else {
-        this.closeDrawerCb(navName, { themeColor, userInfo });
+            ]
+          );
+          break;
+        case 'XWebview':
+          this.closeDrawerCb(navName, { themeColor, uri: 'https://github.com/rainbowvs/react-native-cnode', title: '项目Github地址' });
+          break;
+        case 'Publish':
+          this.closeDrawerCb(navName, { themeColor, userInfo });
+          break;
+        default:
+          this.closeDrawerCb(navName, { themeColor });
+          break;
       }
     };
     if (!userInfo.accesstoken && navName === 'Logout') return null;
@@ -189,7 +199,7 @@ export default class Drawer extends Base {
     const list = [
       { navName: 'Publish', iconName: 'edit-square', titleName: '发表主题' },
       { navName: 'Theme', iconName: 'bg-colors', titleName: '主题颜色' },
-      { navName: 'About', iconName: 'smile', titleName: '关于项目' },
+      { navName: 'XWebview', iconName: 'smile', titleName: '关于项目' },
       { navName: 'Logout', iconName: 'logout', titleName: '退出登录' }
     ];
     return (
