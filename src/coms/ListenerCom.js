@@ -1,7 +1,7 @@
-import React from 'react';
 import { DeviceEventEmitter } from 'react-native';
+import BaseCom from './BaseCom';
 
-export default class Base extends React.Component {
+export default class ListenerCom extends BaseCom {
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener('CHANGE_THEME', params => {
       this.setState(() => ({
