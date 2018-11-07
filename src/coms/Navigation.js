@@ -1,6 +1,16 @@
 import React from 'react';
-import { Easing, Animated, ScrollView } from 'react-native';
-import { createStackNavigator, createDrawerNavigator, SafeAreaView, NavigationActions } from 'react-navigation';
+import {
+  Easing,
+  Animated,
+  ScrollView,
+  BackHandler
+} from 'react-native';
+import {
+  createStackNavigator,
+  createDrawerNavigator,
+  SafeAreaView,
+  NavigationActions
+} from 'react-navigation';
 import StackViewStyleInterpolator from 'react-navigation-stack/dist/views/StackView/StackViewStyleInterpolator';
 import App from '../../App';
 import Home from '../pages/Home';
@@ -87,6 +97,7 @@ StackNav.router.getStateForAction = (action, state) => {
             index: routes.length - 1
           };
         }
+        BackHandler.exitApp();
       }
     }
   }
